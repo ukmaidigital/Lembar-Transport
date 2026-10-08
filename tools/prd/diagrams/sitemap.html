@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Sitemap per peran — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+</head>
+<body data-width="1700" data-scale="2">
+<header class="fig">
+  <h1>Sitemap dan information architecture per peran<small>Rute Next.js (App Router) untuk tiga area: publik/customer, driver (PWA), dan admin. Kotak berwarna = memerlukan login peran tersebut; kotak putih = publik. Versi Inggris tersedia di bawah <code>/en/*</code> untuk seluruh rute publik.</small></h1>
+  <span class="tag">Gambar 5 · PRD v1.0</span>
+</header>
+<svg class="diagram" id="svg" width="1636" height="860" viewBox="0 0 1636 860" role="img" aria-label="Sitemap tiga kolom: rute customer, rute driver, rute admin dengan penanda halaman publik dan terproteksi."></svg>
+<footer class="fig"><span>Lembar Transport · PRD v1.0 · Bab 10.3</span><span>Sub-peran admin ditulis dalam kurung; semua rute admin memerlukan 2FA</span></footer>
+<script src="_lib.js"></script>
+<script>
+const d = Diagram(document.getElementById('svg'));
+
+const columns = [
+  { x: 14, tone: 'customer', root: 'Area publik & customer', rootSub: 'SSR · ID/EN · tamu via OTP', items: [
+    ['/', 'Landing dan pencarian', 0, false],
+    ['/harga', 'Daftar harga per zona × kelas', 0, false],
+    ['/pesan', 'Wizard pemesanan (tujuan → kendaraan → feri → kontak → bayar)', 0, false],
+    ['/pesanan/[kode]', 'Tiket dan status (kode + telepon / token)', 0, false],
+    ['/pesanan/[kode]/bayar', 'Instruksi bayar, unggah bukti, gateway', 1, false],
+    ['/pesanan/[kode]/batal', 'Pembatalan dengan kalkulasi biaya', 1, false],
+    ['/pesanan/[kode]/ulasan', 'Rating dan ulasan', 1, false],
+    ['/qr', 'Pesan Sekarang dari QR terminal', 0, false],
+    ['/masuk', 'Masuk dengan OTP WhatsApp', 0, false],
+    ['/akun', 'Profil dan bahasa', 0, true],
+    ['/akun/pesanan', 'Riwayat pesanan dan kuitansi', 1, true],
+    ['/faq · /kebijakan-pembatalan', 'Bantuan dan kebijakan', 0, false],
+    ['/syarat · /privasi', 'S&K dan kebijakan privasi (berversi)', 0, false],
+    ['/en/*', 'Versi Inggris seluruh rute publik', 0, false],
+  ]},
+  { x: 560, tone: 'driver', root: 'Area driver  /driver', rootSub: 'PWA · offline-tolerant · login driver (OTP)', items: [
+    ['/driver/daftar', 'Wizard pendaftaran 4 langkah (publik)', 0, false],
+    ['/driver/verifikasi', 'Status verifikasi dan unggah ulang', 0, true],
+    ['/driver', 'Beranda: online/offline, trip hari ini, saldo', 0, true],
+    ['/driver/tawaran/[id]', 'Tawaran dengan hitung mundur', 0, true],
+    ['/driver/jadwal', 'Jadwal dan kalender tanggal diblokir', 0, true],
+    ['/driver/trip/[kode]', 'Detail trip dan empat tombol status', 0, true],
+    ['/driver/trip/[kode]/papan-nama', 'Papan nama layar penuh', 1, true],
+    ['/driver/pendapatan', 'Ledger, saldo, ringkasan pendapatan', 0, true],
+    ['/driver/pendapatan/top-up', 'Top-up saldo dengan bukti transfer', 1, true],
+    ['/driver/profil', 'Profil dan kontak darurat', 0, true],
+    ['/driver/profil/kendaraan', 'Kendaraan (ganti → verifikasi ulang)', 1, true],
+    ['/driver/profil/dokumen', 'Dokumen dan tanggal kedaluwarsa', 1, true],
+    ['/driver/notifikasi', 'Notifikasi in-app', 0, true],
+    ['/driver/bantuan', 'Bantuan, laporkan masalah, SOS', 0, true],
+  ]},
+  { x: 1106, tone: 'admin', root: 'Area admin  /admin', rootSub: 'Desktop · email + kata sandi + 2FA · RBAC', items: [
+    ['/admin', 'Dashboard KPI dan penjemputan hari ini', 0, true],
+    ['/admin/verifikasi · /[id]', 'Antrean dan detail verifikasi (verifier)', 0, true],
+    ['/admin/driver · /[id] · /baru', 'Daftar, detail, daftarkan driver (ops, verifier)', 0, true],
+    ['/admin/kendaraan', 'Kendaraan dan kelas kendaraan (ops)', 0, true],
+    ['/admin/pesanan · /[kode] · /baru', 'Papan pesanan, detail, pesanan manual (ops)', 0, true],
+    ['/admin/dispatch', 'needs_attention dan driver online (ops)', 0, true],
+    ['/admin/pembayaran', 'Review bukti transfer dan refund (finance)', 0, true],
+    ['/admin/keuangan/ledger', 'Ledger dan saldo mitra (finance)', 0, true],
+    ['/admin/keuangan/payout', 'Payout mingguan (finance)', 1, true],
+    ['/admin/tarif · /zona · /titik-temu', 'Tarif, zona, POI, titik temu (super admin)', 0, true],
+    ['/admin/laporan', 'Laporan dan ekspor CSV/XLSX', 0, true],
+    ['/admin/pengaturan', 'Komisi, timeout, tier batal, template (super admin)', 0, true],
+    ['/admin/staf · /admin/audit', 'Staf dan izin, audit log (super admin)', 0, true],
+  ]},
+];
+
+const COLW = 516, ROOT_H = 60, ITEM_H = 40, PITCH = 50, Y0 = 30;
+columns.forEach((col) => {
+  const t = d.TONES[col.tone];
+  d.box({ id: col.root, x: col.x, y: Y0, w: COLW, h: ROOT_H, tone: col.tone, title: col.root, lines: [col.rootSub], titleSize: 14, lineSize: 11.5 });
+  const trunkX = col.x + 22;
+  const firstY = Y0 + ROOT_H + 24;
+  let lastLevel0Y = firstY;
+  let parentY = null;
+  col.items.forEach(([route, desc, level, prot], i) => {
+    const y = firstY + i * PITCH;
+    const indent = level * 36;
+    const bx = col.x + 44 + indent, bw = COLW - 44 - indent;
+    d.box({ id: col.root + i, x: bx, y, w: bw, h: ITEM_H, tone: prot ? col.tone : 'plain', title: '', lines: [], titleSize: 12 });
+    // route (semi-mono look via weight) and description
+    d.text(bx + 12, y + 25, route, { size: 12.5, weight: 700, color: prot ? t.text : '#0f172a' });
+    const routeWidth = Math.min(route.length * 7.6 + 14, bw - 150);
+    d.text(bx + 12 + routeWidth + 10, y + 25, desc, { size: 11.5, color: '#334155' });
+    if (level === 0) { lastLevel0Y = y; parentY = y; }
+    // connectors
+    const fromX = level === 0 ? trunkX : col.x + 44 + 18;
+    const ownTrunkEnd = y + ITEM_H / 2;
+    svgEl('line', { x1: fromX, y1: ownTrunkEnd, x2: bx, y2: ownTrunkEnd, stroke: t.stroke, 'stroke-width': 1.5 }, document.querySelector('#svg .edges'));
+    if (level === 1) svgEl('line', { x1: fromX, y1: parentY + ITEM_H, x2: fromX, y2: ownTrunkEnd, stroke: t.stroke, 'stroke-width': 1.5 }, document.querySelector('#svg .edges'));
+  });
+  svgEl('line', { x1: trunkX, y1: Y0 + ROOT_H, x2: trunkX, y2: lastLevel0Y + ITEM_H / 2, stroke: t.stroke, 'stroke-width': 1.5 }, document.querySelector('#svg .edges'));
+  svgEl('circle', { cx: trunkX, cy: Y0 + ROOT_H, r: 3.5, fill: t.stroke }, document.querySelector('#svg .edges'));
+});
+
+d.legend({ x: 14, y: 830, columns: 4, colWidth: 260, items: [
+  { tone: 'plain', label: 'Halaman publik (tanpa login)' },
+  { tone: 'customer', label: 'Login customer (OTP) · token 30 hari' },
+  { tone: 'driver', label: 'Login driver (OTP) · PWA · token 30 hari' },
+  { tone: 'admin', label: 'Login admin + 2FA · sesi 8 jam · izin per sub-peran' },
+]});
+</script>
+</body>
+</html>

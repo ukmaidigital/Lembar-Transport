@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Wireframe driver — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+<link rel="stylesheet" href="_wire.css">
+<style>
+  .phone .appbar .brand i { background: var(--driver); }
+  .steps span.done { background: var(--driver-bg); color: var(--driver-ink); }
+  .steps span.cur { background: var(--driver); }
+  .nav { display: flex; justify-content: space-around; font-size: 10px; color: var(--ink-3); }
+  .nav b { color: var(--driver-ink); }
+  .stat { display: flex; justify-content: space-between; align-items: center; }
+  .stat .big { font-size: 20px; font-weight: 700; }
+</style>
+</head>
+<body data-width="2250" data-scale="2">
+<header class="fig">
+  <h1>Wireframe antarmuka driver (PWA, mobile-first)<small>Enam layar inti: pendaftaran dan dokumen, beranda saat online, tawaran dengan hitung mundur, detail trip dengan tombol status tunggal yang berganti tahap, papan nama layar penuh, serta pendapatan dan saldo. Target sentuh besar, bahasa Indonesia sederhana, toleran sinyal buruk.</small></h1>
+  <span class="tag">Gambar 7 · PRD v1.0</span>
+</header>
+<div class="frames">
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>13:05</span><span>4G ▮▮▯ ▭</span></div>
+      <div class="appbar"><span class="brand"><i></i>Daftar Mitra Driver</span><span class="note">Simpan otomatis ✓</span></div>
+      <div class="body">
+        <div class="steps"><span class="done">Data diri</span><span class="done">Kendaraan</span><span class="cur">Dokumen</span><span>Persetujuan</span></div>
+        <div class="sub">Foto harus jelas, tidak buram, seluruh dokumen terlihat. Berkas dikompresi otomatis (maks. 5 MB).</div>
+        <div class="list">
+          <div class="item"><span><b>KTP</b><br><span class="note">berlaku seumur hidup</span></span><span class="badge good">Disetujui</span></div>
+          <div class="item"><span><b>SIM A</b><br><span class="note">berlaku s.d. 20 Nov 2026</span></span><span class="badge info">Terunggah</span></div>
+          <div class="item" style="border-color:var(--critical)"><span><b>STNK</b><br><span class="note">Ditolak: foto buram, pajak tidak terbaca</span></span><span class="badge danger">Unggah ulang</span></div>
+          <div class="item"><span><b>SKCK</b><br><span class="note">maks. 6 bulan sejak terbit</span></span><span class="chip">Unggah</span></div>
+          <div class="item"><span><b>Selfie dengan KTP</b></span><span class="chip">Unggah</span></div>
+          <div class="item"><span><b>Foto kendaraan</b><br><span class="note">4 sisi, interior, pelat</span></span><span class="badge warn">2 / 6</span></div>
+          <div class="item"><span><b>Buku rekening</b><br><span class="note">nama harus sesuai KTP</span></span><span class="chip">Unggah</span></div>
+          <div class="item"><span><b>KIR, NPWP</b> <span class="note">(opsional)</span></span><span class="chip">Unggah</span></div>
+        </div>
+      </div>
+      <div class="sticky"><div class="btn driver big" style="flex:1">Simpan & lanjut</div></div>
+    </div>
+    <div class="caption"><b>1 · Pendaftaran dan dokumen</b>Wizard 4 langkah yang bisa dilanjutkan kapan saja; status per dokumen dengan alasan penolakan; hanya dokumen ditolak yang diunggah ulang. Rute <code>/driver/daftar</code>, <code>/driver/verifikasi</code>.</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>03:40</span><span>4G ▮▯▯ ▭</span></div>
+      <div class="appbar"><span class="brand"><i></i>Lembar Transport</span><span class="badge good">Online</span></div>
+      <div class="body">
+        <div class="card"><div class="stat"><div><b>Status</b><div class="note">Terima tawaran order dadakan di pelabuhan</div></div><div class="toggle"></div></div></div>
+        <div class="card"><div class="stat"><div><div class="note">Saldo mitra</div><div class="big">Rp 120.000</div><div class="note">Ambang minimum −Rp 100.000</div></div><div class="btn ghost">Top-up</div></div></div>
+        <div class="sub" style="font-weight:600;color:var(--ink)">Trip berikutnya</div>
+        <div class="card sel" style="border-color:var(--driver);box-shadow:0 0 0 2px rgba(235,104,52,0.15)">
+          <div class="kv"><span><b>Hari ini · ± 05.30 WITA</b></span><span class="badge drv">Ditugaskan</span></div>
+          <div>Lembar → <b>Senggigi</b> · Rina Puspita · 4 penumpang · 3 bagasi</div>
+          <div class="kv"><span class="note">ASDP dari Padangbai, berangkat 23.00 · sandar ± 04.30–06.00</span></div>
+          <div class="kv"><span>Tunai · tagih <b>Rp 350.000</b></span><span class="note">bersih Rp 297.500</span></div>
+          <div class="btn driver">Lihat detail trip</div>
+        </div>
+        <div class="list">
+          <div class="item"><span>Hari ini 14.00 · Lembar → Bandara · 2 pax</span><span class="badge drv">Ditugaskan</span></div>
+          <div class="item"><span>Rab 15 Okt 06.00 · Lembar → Bangsal · 3 pax</span><span class="badge info">Prabayar</span></div>
+        </div>
+        <div class="warnbox">SIM A berlaku s.d. 20 Nov 2026 (H-37). Perbarui sebelum kedaluwarsa agar tawaran tidak diblokir.</div>
+        <div class="note">Tersinkron 2 menit lalu · 0 aksi menunggu koneksi</div>
+      </div>
+      <div class="sticky"><div class="nav" style="flex:1"><b>Beranda</b><span>Jadwal</span><span>Pendapatan</span><span>Profil</span></div></div>
+    </div>
+    <div class="caption"><b>2 · Beranda saat online</b>Toggle besar, saldo dan ambang, trip berikutnya dengan data feri, daftar trip hari ini, peringatan dokumen, indikator sinkronisasi offline. Rute <code>/driver</code>.</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>10:12</span><span>4G ▮▮▮ ▭</span></div>
+      <div class="appbar"><span class="brand"><i></i>Tawaran trip baru</span><span class="note">Gelombang 1</span></div>
+      <div class="body">
+        <div class="ring"><b>1:42</b><span>sisa waktu</span></div>
+        <div class="h" style="text-align:center">Lembar → Senggigi (Z3)</div>
+        <div class="sub" style="text-align:center">Sel, 14 Okt · penjemputan ± 05.30 WITA · ± 70 menit perjalanan</div>
+        <div class="card">
+          <div class="kv"><span>Kelas</span><span>MPV Standar</span></div>
+          <div class="kv"><span>Penumpang · bagasi</span><span>4 · 3</span></div>
+          <div class="kv"><span>Pembayaran</span><span>Tunai</span></div>
+          <div class="kv"><span>Kapal</span><span>ASDP Padangbai 23.00</span></div>
+          <div class="hr"></div>
+          <div class="kv"><span>Tarif customer</span><span>Rp 350.000</span></div>
+          <div class="kv"><span>Komisi 15 %</span><span>− Rp 52.500</span></div>
+          <div class="kv"><span><b>Pendapatan bersih</b></span><span class="price" style="color:var(--driver-ink)">Rp 297.500</span></div>
+        </div>
+        <div class="note">Catatan customer: dua koper besar dan satu stroller.</div>
+        <div class="btn good big">Terima</div>
+        <div class="btn ghost">Tolak</div>
+        <div class="note" style="text-align:center">Penerimaan pertama menang. Tawaran hilang bila diambil driver lain.</div>
+      </div>
+    </div>
+    <div class="caption"><b>3 · Tawaran dengan hitung mundur</b>Pendapatan bersih ditampilkan, bukan hanya tarif customer; satu tombol terima yang besar; getaran dan suara. Rute <code>/driver/tawaran/[id]</code>.</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>04:38</span><span>4G ▮▯▯ ▭</span></div>
+      <div class="appbar"><span class="brand">‹ Trip LT-261014-7K3Q</span><span class="badge good">Kapal sandar 04.35</span></div>
+      <div class="body">
+        <div class="infobox">Tunggu gratis: <b>57 menit</b> tersisa (sejak sandar 04.35)</div>
+        <div class="card">
+          <div class="row" style="align-items:center"><div class="avatar"></div><div style="flex:1"><b>Rina Puspita</b><div class="note">4 penumpang · 3 bagasi · stroller</div></div></div>
+          <div class="row"><div class="btn ghost">WhatsApp</div><div class="btn ghost">Telepon</div></div>
+        </div>
+        <div class="card">
+          <div class="kv"><span>Titik temu</span><span>Gate A, Terminal Penumpang</span></div>
+          <div class="kv"><span>Tujuan</span><span>Senggigi · Hotel Puri Mas</span></div>
+          <div class="kv"><span>Pembayaran</span><span>Tunai · Rp 350.000</span></div>
+        </div>
+        <div class="timeline">
+          <div><i class="done"></i><span>Menuju Pelabuhan · 03.50</span></div>
+          <div><i class="done"></i><span>Tiba di Titik Temu · 04.20</span></div>
+          <div><i class="cur"></i><span><b>Penumpang Naik</b></span></div>
+          <div><i></i><span class="muted">Selesai · catat tunai</span></div>
+        </div>
+        <div class="btn driver big">Penumpang Naik</div>
+        <div class="row"><div class="btn ghost">Papan nama</div><div class="btn ghost" style="color:var(--critical)">Masalah / SOS</div></div>
+        <div class="note" style="text-align:center">Tombol tetap berfungsi tanpa sinyal; aksi dikirim saat online.</div>
+      </div>
+    </div>
+    <div class="caption"><b>4 · Detail trip (hari H)</b>Satu tombol status yang berganti tahap: Menuju Pelabuhan → Tiba di Titik Temu → Penumpang Naik → Selesai; timer tunggu gratis dari jangkar sandar. Rute <code>/driver/trip/[kode]</code>.</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="nameboard">
+        <div class="code">LEMBAR TRANSPORT · LT-261014-7K3Q</div>
+        <div class="name">RINA<br>PUSPITA</div>
+        <div class="code">SENGGIGI · AVANZA PUTIH · DR 1234 AB</div>
+        <div class="note" style="color:#94a3b8;margin-top:20px">Ketuk layar untuk kembali · kecerahan maksimal · layar tetap menyala</div>
+      </div>
+    </div>
+    <div class="caption"><b>5 · Papan nama layar penuh</b>Nama customer sangat besar dengan kontras tinggi untuk pelataran yang ramai; otomatis lanskap dan kecerahan penuh. Rute <code>/driver/trip/[kode]/papan-nama</code>.</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>19:20</span><span>4G ▮▮▮ ▭</span></div>
+      <div class="appbar"><span class="brand"><i></i>Pendapatan</span><span class="lang"><b>Minggu ini</b> ▾</span></div>
+      <div class="body">
+        <div class="card"><div class="stat"><div><div class="note">Saldo mitra</div><div class="big">Rp 120.000</div><div class="note">Payout otomatis Senin bila ≥ Rp 50.000</div></div><div class="btn driver">Top-up</div></div></div>
+        <div class="row">
+          <div class="card"><div class="note">Trip selesai</div><div class="big" style="font-size:18px;font-weight:700">9</div></div>
+          <div class="card"><div class="note">Pendapatan bersih</div><div class="big" style="font-size:18px;font-weight:700">Rp 2,41 jt</div></div>
+          <div class="card"><div class="note">Komisi tunai</div><div class="big" style="font-size:18px;font-weight:700">Rp 315 rb</div></div>
+        </div>
+        <div class="sub" style="font-weight:600;color:var(--ink)">Riwayat ledger</div>
+        <div class="list">
+          <div class="item"><span>Sel 14 Okt · LT-…7K3Q · Senggigi<br><span class="note">tunai Rp 350.000 diterima · komisi 15 %</span></span><span style="color:#9b2222">− Rp 52.500</span></div>
+          <div class="item"><span>Sel 14 Okt · LT-…9Q2A · Bandara<br><span class="note">prabayar · pendapatan bersih</span></span><span style="color:#0a6b0a">+ Rp 255.000</span></div>
+          <div class="item"><span>Sen 13 Okt · Top-up dikonfirmasi<br><span class="note">transfer BCA · Finance 10.14</span></span><span style="color:#0a6b0a">+ Rp 200.000</span></div>
+          <div class="item"><span>Sen 13 Okt · Payout mingguan<br><span class="note">ke BCA •••• 7890</span></span><span style="color:#9b2222">− Rp 450.000</span></div>
+          <div class="item"><span>Min 12 Okt · Kompensasi pembatalan<br><span class="note">LT-…2F8D dibatalkan &lt; 6 jam</span></span><span style="color:#0a6b0a">+ Rp 110.000</span></div>
+        </div>
+      </div>
+      <div class="sticky"><div class="nav" style="flex:1"><span>Beranda</span><span>Jadwal</span><b>Pendapatan</b><span>Profil</span></div></div>
+    </div>
+    <div class="caption"><b>6 · Pendapatan dan saldo</b>Ledger per trip (tarif, komisi, bersih), top-up, payout, dan kompensasi; filter periode. Rute <code>/driver/pendapatan</code>.</div>
+  </div>
+
+</div>
+<footer class="fig"><span>Lembar Transport · PRD v1.0 · Bab 10.5</span><span>Wireframe low-fidelity · teks contoh · tema terang untuk penggunaan di luar ruangan</span></footer>
+</body>
+</html>

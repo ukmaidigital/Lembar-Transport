@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Wireframe admin — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+<link rel="stylesheet" href="_wire.css">
+<style>
+  .grid2 { display: grid; grid-template-columns: 1000px 1000px; gap: 28px 40px; }
+  .shot { display: flex; flex-direction: column; gap: 10px; position: relative; }
+  .mini { font-size: 10px; color: var(--ink-3); }
+  .axis { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--ink-3); }
+  .inp { border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 10.5px; background: #fff; color: var(--ink-2); }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .tabs { display: flex; gap: 2px; background: #e2e8f0; border-radius: 6px; padding: 2px; font-size: 10.5px; }
+  .tabs span { padding: 3px 10px; border-radius: 5px; }
+  .tabs span.on { background: #fff; font-weight: 600; }
+  .cell { text-align: right; font-variant-numeric: tabular-nums; }
+  .cell.edit { background: #fff4d6; outline: 1.5px solid #d99a00; border-radius: 3px; }
+  .btnrow { display: flex; gap: 6px; }
+  .btn.sm { padding: 5px 9px; font-size: 10.5px; border-radius: 6px; }
+  .btn.admin { background: var(--admin); color: #fff; }
+  .btn.disabled { background: #e2e8f0; color: #94a3b8; }
+</style>
+</head>
+<body data-width="2104" data-scale="2">
+<header class="fig">
+  <h1>Wireframe antarmuka admin (desktop)<small>Empat layar inti: dashboard operasional, verifikasi driver berdampingan, papan pesanan dengan dialog assign driver, dan editor matriks tarif. Sidebar menampilkan jumlah antrean yang menunggu tindakan.</small></h1>
+  <span class="tag">Gambar 8 · PRD v1.0</span>
+</header>
+<div class="grid2">
+
+  <!-- 1. Dashboard -->
+  <div class="shot">
+    <div class="desk">
+      <div class="chrome"><i></i><i></i><i></i><span class="url">admin.lembartransport.id/admin</span></div>
+      <div class="main">
+        <div class="side">
+          <div class="logo"><i></i>Lembar Transport</div>
+          <div class="nav on"><span>Dashboard</span></div>
+          <div class="nav"><span>Verifikasi</span><span class="pill">3</span></div>
+          <div class="nav"><span>Driver</span></div>
+          <div class="nav"><span>Kendaraan</span></div>
+          <div class="nav"><span>Pesanan</span></div>
+          <div class="nav"><span>Dispatch</span><span class="pill">1</span></div>
+          <div class="nav"><span>Pembayaran</span><span class="pill">5</span></div>
+          <div class="nav"><span>Keuangan</span></div>
+          <div class="nav"><span>Tarif & Zona</span></div>
+          <div class="nav"><span>Laporan</span></div>
+          <div class="nav"><span>Pengaturan</span></div>
+          <div class="nav"><span>Staf · Audit</span></div>
+        </div>
+        <div class="content">
+          <div class="topbar"><span class="h">Dashboard · Selasa, 14 Okt 2026 · 04.40 WITA</span><span class="who">Dewi · Ops shift malam · diperbarui 30 dtk lalu</span></div>
+          <div class="tiles">
+            <div class="tile"><span class="lbl">Pesanan hari ini</span><span class="val">18</span><span class="delta">+3 vs kemarin</span></div>
+            <div class="tile"><span class="lbl">Trip berjalan</span><span class="val">4</span><span class="delta">2 menuju pelabuhan</span></div>
+            <div class="tile alert"><span class="lbl">Tanpa driver</span><span class="val">1</span><span class="delta">needs_attention · 12 mnt</span></div>
+            <div class="tile"><span class="lbl">Verifikasi tertunda</span><span class="val">3</span><span class="delta">SLA terdekat 6 jam</span></div>
+            <div class="tile"><span class="lbl">Pembayaran menunggu</span><span class="val">5</span><span class="delta">bukti transfer</span></div>
+          </div>
+          <div class="cols" style="grid-template-columns: 1.5fr 1fr; flex:1; min-height:0">
+            <div class="panel">
+              <div class="ph"><span>Penjemputan hari ini · terurut estimasi sandar</span><span class="mini">Lihat semua ›</span></div>
+              <table class="t">
+                <tr><th>Kode</th><th>Sandar</th><th>Tujuan</th><th>Kelas</th><th>Driver</th><th>Status</th></tr>
+                <tr><td>LT-261014-7K3Q</td><td>04.35 ✓</td><td>Senggigi</td><td>MPV Std</td><td>Lalu Hadi</td><td><span class="badge drv">Tiba</span></td></tr>
+                <tr><td>LT-261014-2B1X</td><td>± 05.00</td><td>Mataram</td><td>MPV Std</td><td>Wayan S.</td><td><span class="badge drv">Menuju</span></td></tr>
+                <tr><td>LT-261014-3M8C</td><td>± 05.30</td><td>Bangsal</td><td>Minibus 12</td><td>—</td><td><span class="badge danger">Tanpa driver</span></td></tr>
+                <tr><td>LT-261014-8P2L</td><td>± 06.10</td><td>Bandara</td><td>MPV Prem</td><td>Rizal A.</td><td><span class="badge info">Ditugaskan</span></td></tr>
+                <tr><td>LT-261014-5T9D</td><td>± 14.00</td><td>Kuta</td><td>MPV Std</td><td>Lalu Hadi</td><td><span class="badge info">Ditugaskan</span></td></tr>
+                <tr><td>LT-261014-6R4N</td><td>± 17.30</td><td>Senggigi</td><td>MPV Std</td><td>—</td><td><span class="badge warn">Belum bayar</span></td></tr>
+              </table>
+            </div>
+            <div class="cols" style="grid-template-rows: auto 1fr">
+              <div class="panel">
+                <div class="ph"><span>Pesanan terkonfirmasi · 14 hari</span><span class="mini">rata-rata 15/hari</span></div>
+                <div class="bars"><i style="height:40%"></i><i style="height:52%"></i><i style="height:46%"></i><i style="height:60%"></i><i style="height:58%"></i><i style="height:72%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:50%"></i><i style="height:64%"></i><i style="height:70%"></i><i style="height:84%"></i><i style="height:92%"></i><i style="height:66%"></i></div>
+                <div class="axis"><span>1 Okt</span><span>7 Okt</span><span>14 Okt (18)</span></div>
+              </div>
+              <div class="panel">
+                <div class="ph"><span>Perlu tindakan</span></div>
+                <div class="list" style="gap:4px">
+                  <div class="item" style="padding:5px 8px"><span>Dokumen kedaluwarsa ≤ 7 hari</span><span class="badge warn">2 driver</span></div>
+                  <div class="item" style="padding:5px 8px"><span>Saldo di bawah ambang</span><span class="badge warn">3 driver</span></div>
+                  <div class="item" style="padding:5px 8px"><span>Bukti transfer selisih jumlah</span><span class="badge danger">1</span></div>
+                  <div class="item" style="padding:5px 8px"><span>Notifikasi WA gagal 24 jam</span><span class="badge good">0,8 %</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="deskcap"><b>1 · Dashboard operasional</b>Tile KPI dengan ambang merah, daftar penjemputan hari ini terurut estimasi sandar, tren 14 hari satu seri, dan daftar tindakan. Angka diperbarui tiap 30 detik. Rute <code>/admin</code>.</div>
+  </div>
+
+  <!-- 2. Verifikasi -->
+  <div class="shot">
+    <div class="desk">
+      <div class="chrome"><i></i><i></i><i></i><span class="url">admin.lembartransport.id/admin/verifikasi/1042</span></div>
+      <div class="main">
+        <div class="side">
+          <div class="logo"><i></i>Lembar Transport</div>
+          <div class="nav"><span>Dashboard</span></div>
+          <div class="nav on"><span>Verifikasi</span><span class="pill">3</span></div>
+          <div class="nav"><span>Driver</span></div>
+          <div class="nav"><span>Kendaraan</span></div>
+          <div class="nav"><span>Pesanan</span></div>
+          <div class="nav"><span>Dispatch</span><span class="pill">1</span></div>
+          <div class="nav"><span>Pembayaran</span><span class="pill">5</span></div>
+          <div class="nav"><span>Keuangan</span></div>
+          <div class="nav"><span>Tarif & Zona</span></div>
+          <div class="nav"><span>Laporan</span></div>
+          <div class="nav"><span>Pengaturan</span></div>
+          <div class="nav"><span>Staf · Audit</span></div>
+        </div>
+        <div class="content">
+          <div class="topbar"><span class="h">Verifikasi · Lalu Hadi · diajukan Sen 13 Okt 09.10</span><span class="badge warn">SLA 18 j 20 m tersisa</span></div>
+          <div class="split" style="flex:1">
+            <div class="panel">
+              <div class="ph"><span>Dokumen: KTP</span><span class="mini">1 / 11</span></div>
+              <div class="doc">Pratinjau KTP (zoom, rotasi, pan)<div class="tools"><span>− 100 % +</span><span>↻</span><span>‹ ›</span></div></div>
+              <div class="thumbs"><span class="on">KTP</span><span>SIM A</span><span>STNK</span><span>SKCK</span><span>Selfie</span><span>Mobil ×6</span><span>Rekening</span></div>
+              <div class="btnrow"><div class="btn sm admin">Setujui dokumen</div><div class="btn sm ghost">Tolak · pilih alasan ▾</div><div class="inp" style="margin-left:auto">Kedaluwarsa: —</div></div>
+            </div>
+            <div class="panel">
+              <div class="ph"><span>Data isian</span><span class="mini">Riwayat versi ›</span></div>
+              <table class="t">
+                <tr><td>Nama</td><td><b>Lalu Hadi Saputra</b></td></tr>
+                <tr><td>NIK</td><td>5201•••••••••034 <span class="mini">(lihat · tercatat di audit)</span></td></tr>
+                <tr><td>Tgl lahir · alamat</td><td>12 Mar 1985 · Lembar, Lombok Barat</td></tr>
+                <tr><td>SIM A</td><td>No. 8512•••• · berlaku s.d. 20 Nov 2026</td></tr>
+                <tr><td>SKCK</td><td>Terbit 2 Sep 2026 (≤ 6 bulan ✓)</td></tr>
+                <tr><td>Kendaraan</td><td>Avanza 2019 putih · <b>DR 1234 AB</b> · MPV Standar</td></tr>
+                <tr><td>Rekening</td><td>BCA •••• 7890 a.n. Lalu Hadi Saputra ✓ sesuai KTP</td></tr>
+              </table>
+              <div class="ph" style="font-size:11px">Daftar periksa</div>
+              <div class="check"><i class="on"></i>Nama sesuai KTP</div>
+              <div class="check"><i class="on"></i>SIM A berlaku (A Umum diutamakan)</div>
+              <div class="check"><i class="on"></i>STNK atas nama atau surat kuasa, pajak berjalan</div>
+              <div class="check"><i></i>Pelat sesuai foto kendaraan</div>
+              <div class="check"><i class="on"></i>SKCK ≤ 6 bulan</div>
+              <div class="inp">Catatan internal: STNK atas nama istri, surat kuasa terlampir…</div>
+              <div class="btnrow"><div class="btn sm disabled">Aktifkan (lengkapi daftar periksa)</div><div class="btn sm ghost">Minta revisi</div><div class="btn sm ghost" style="color:#9b2222">Tolak permanen</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="deskcap"><b>2 · Verifikasi driver berdampingan</b>Dokumen di kiri dengan zoom dan navigasi, data isian dan daftar periksa di kanan; "Aktifkan" terbuka hanya setelah semua item dicentang; akses NIK tercatat di audit. Rute <code>/admin/verifikasi/[id]</code>.</div>
+  </div>
+
+  <!-- 3. Papan pesanan + assign -->
+  <div class="shot">
+    <div class="desk">
+      <div class="chrome"><i></i><i></i><i></i><span class="url">admin.lembartransport.id/admin/pesanan?tanggal=hari-ini</span></div>
+      <div class="main">
+        <div class="side">
+          <div class="logo"><i></i>Lembar Transport</div>
+          <div class="nav"><span>Dashboard</span></div>
+          <div class="nav"><span>Verifikasi</span><span class="pill">3</span></div>
+          <div class="nav"><span>Driver</span></div>
+          <div class="nav"><span>Kendaraan</span></div>
+          <div class="nav on"><span>Pesanan</span></div>
+          <div class="nav"><span>Dispatch</span><span class="pill">1</span></div>
+          <div class="nav"><span>Pembayaran</span><span class="pill">5</span></div>
+          <div class="nav"><span>Keuangan</span></div>
+          <div class="nav"><span>Tarif & Zona</span></div>
+          <div class="nav"><span>Laporan</span></div>
+          <div class="nav"><span>Pengaturan</span></div>
+          <div class="nav"><span>Staf · Audit</span></div>
+        </div>
+        <div class="content">
+          <div class="topbar"><span class="h">Pesanan · Papan</span><div class="btnrow"><div class="btn sm admin">+ Pesanan manual</div><div class="btn sm ghost">Ekspor</div></div></div>
+          <div class="filters"><span class="tabs"><span class="on">Kanban</span><span>Tabel</span></span><span class="inp">Tanggal: Hari ini ▾</span><span class="inp">Status: Semua ▾</span><span class="inp">Zona ▾</span><span class="inp">Driver ▾</span><span class="inp">Metode bayar ▾</span><span class="inp" style="flex:1">🔍 Cari kode, nama, telepon</span></div>
+          <div class="kanban" style="flex:1">
+            <div class="kcol"><div class="kh"><span>Menunggu bayar</span><span>2</span></div>
+              <div class="kcard"><b>LT-…6R4N</b>Senggigi · 17.30<br>MPV Std · 3 pax · transfer<br><span class="badge warn">bukti belum ada · 1 j 10 m</span></div>
+              <div class="kcard"><b>LT-…1A7Z</b>Mataram · Rab 06.00<br>MPV Prem · 2 pax · gateway</div></div>
+            <div class="kcol"><div class="kh"><span>Terkonfirmasi</span><span>5</span></div>
+              <div class="kcard"><b>LT-…4D2K</b>Bandara · Rab 05.00<br>MPV Std · tunai<br><span class="mini">dispatch T-48 jam: Sen 05.00</span></div>
+              <div class="kcard"><b>LT-…9H5V</b>Kuta · Kam 08.00<br>Minibus 12 · prabayar</div>
+              <div class="kcard"><b>LT-…2Q8W</b>Sekotong · Rab 11.00<br>MPV Std · tunai</div></div>
+            <div class="kcol"><div class="kh"><span>Mencari driver</span><span>1</span></div>
+              <div class="kcard hot"><b>LT-…3M8C</b>Bangsal · ± 05.30<br>Minibus 12 · 11 pax · prabayar<br><span class="badge danger">needs_attention</span><br><span class="mini">3 gelombang kosong · 12 mnt</span></div></div>
+            <div class="kcol"><div class="kh"><span>Ditugaskan</span><span>6</span></div>
+              <div class="kcard"><b>LT-…8P2L</b>Bandara · ± 06.10<br>Rizal A. · MPV Prem</div>
+              <div class="kcard"><b>LT-…5T9D</b>Kuta · ± 14.00<br>Lalu Hadi · MPV Std</div>
+              <div class="kcard"><b>LT-…7Y1B</b>Tetebatu · Rab 07.00<br>Made W. · Minibus 12</div></div>
+            <div class="kcol"><div class="kh"><span>Berjalan</span><span>4</span></div>
+              <div class="kcard"><b>LT-…7K3Q</b>Senggigi · sandar 04.35<br>Lalu Hadi · <span class="badge drv">tiba di titik temu</span></div>
+              <div class="kcard"><b>LT-…2B1X</b>Mataram · ± 05.00<br>Wayan S. · <span class="badge drv">menuju pelabuhan</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal">
+        <div class="mh">Tugaskan driver · LT-261014-3M8C</div>
+        <div class="mini">Bangsal (Z6) · Minibus 12 · 11 penumpang · ± 05.30 WITA · prabayar Rp 700.000</div>
+        <div class="list" style="gap:4px">
+          <div class="item" style="padding:6px 8px"><span><b>Sahrul M.</b> · Hiace Commuter 12 · ★ 4,8<br><span class="mini">skor 91 · online · 2 km dari pelabuhan · saldo OK</span></span><span class="btn sm admin">Pilih</span></div>
+          <div class="item" style="padding:6px 8px"><span><b>Komang A.</b> · Elf 12 · ★ 4,7<br><span class="mini">skor 86 · offline, tersedia tanggal ini</span></span><span class="btn sm ghost">Pilih</span></div>
+          <div class="item" style="padding:6px 8px;opacity:.6"><span><b>Made W.</b> · Hiace 12 · ★ 4,6<br><span class="mini">tidak layak: trip LT-…7Y1B bentrok (buffer 60 mnt)</span></span><span class="btn sm disabled">—</span></div>
+          <div class="item" style="padding:6px 8px;opacity:.6"><span><b>Agus P.</b> · Hiace 14 · ★ 4,9<br><span class="mini">tidak layak: saldo −Rp 160.000 di bawah ambang</span></span><span class="btn sm disabled">—</span></div>
+        </div>
+        <div class="inp">Alasan override (wajib bila memilih driver tidak layak)…</div>
+        <div class="btnrow"><div class="btn sm admin">Tugaskan & kirim kartu driver</div><div class="btn sm ghost">Dispatch ulang</div><div class="btn sm ghost">Tawarkan kelas lain</div></div>
+      </div>
+    </div>
+    <div class="deskcap"><b>3 · Papan pesanan dan dialog assign</b>Kanban per status dengan filter dan pencarian; kartu <code>needs_attention</code> disorot; dialog menampilkan driver layak terurut skor dan alasan ketidaklayakan; override wajib beralasan dan masuk audit. Rute <code>/admin/pesanan</code>.</div>
+  </div>
+
+  <!-- 4. Tarif -->
+  <div class="shot">
+    <div class="desk">
+      <div class="chrome"><i></i><i></i><i></i><span class="url">admin.lembartransport.id/admin/tarif</span></div>
+      <div class="main">
+        <div class="side">
+          <div class="logo"><i></i>Lembar Transport</div>
+          <div class="nav"><span>Dashboard</span></div>
+          <div class="nav"><span>Verifikasi</span><span class="pill">3</span></div>
+          <div class="nav"><span>Driver</span></div>
+          <div class="nav"><span>Kendaraan</span></div>
+          <div class="nav"><span>Pesanan</span></div>
+          <div class="nav"><span>Dispatch</span><span class="pill">1</span></div>
+          <div class="nav"><span>Pembayaran</span><span class="pill">5</span></div>
+          <div class="nav"><span>Keuangan</span></div>
+          <div class="nav on"><span>Tarif & Zona</span></div>
+          <div class="nav"><span>Laporan</span></div>
+          <div class="nav"><span>Pengaturan</span></div>
+          <div class="nav"><span>Staf · Audit</span></div>
+        </div>
+        <div class="content">
+          <div class="topbar"><span class="h">Tarif transfer sekali jalan · draf berlaku mulai 1 Nov 2026</span><div class="btnrow"><div class="btn sm ghost">Riwayat</div><div class="btn sm ghost">Impor CSV</div></div></div>
+          <div class="filters"><span class="tabs"><span class="on">Transfer sekali jalan</span><span>Pulang-pergi (F2)</span><span>Charter harian (F2)</span></span><span class="inp">valid_from: 01 Nov 2026 00.00 WITA</span></div>
+          <div class="cols" style="grid-template-columns: 1.35fr 1fr; flex:1; min-height:0">
+            <div class="panel">
+              <div class="ph"><span>Matriks zona × kelas (Rp)</span><span class="mini">klik sel untuk mengubah</span></div>
+              <table class="t">
+                <tr><th>Zona</th><th class="cell">MPV Standar</th><th class="cell">MPV Premium</th><th class="cell">Minibus 12</th><th class="cell">Minibus 16</th></tr>
+                <tr><td>Z1 Sekotong</td><td class="cell">200.000</td><td class="cell">275.000</td><td class="cell">450.000</td><td class="cell">550.000</td></tr>
+                <tr><td>Z2 Mataram Raya</td><td class="cell">225.000</td><td class="cell">300.000</td><td class="cell">475.000</td><td class="cell">575.000</td></tr>
+                <tr><td>Z3 Senggigi</td><td class="cell edit">300.000</td><td class="cell">375.000</td><td class="cell">550.000</td><td class="cell">650.000</td></tr>
+                <tr><td>Z4 Bandara</td><td class="cell">300.000</td><td class="cell">375.000</td><td class="cell">550.000</td><td class="cell">650.000</td></tr>
+                <tr><td>Z5 Mandalika</td><td class="cell">375.000</td><td class="cell">450.000</td><td class="cell">650.000</td><td class="cell">750.000</td></tr>
+                <tr><td>Z6 Bangsal / Gili</td><td class="cell">400.000</td><td class="cell">475.000</td><td class="cell">700.000</td><td class="cell">800.000</td></tr>
+                <tr><td>Z7 Lombok Timur</td><td class="cell">500.000</td><td class="cell">600.000</td><td class="cell">850.000</td><td class="cell">950.000</td></tr>
+                <tr><td>Z8 Rinjani</td><td class="cell">650.000</td><td class="cell">750.000</td><td class="cell">1.000.000</td><td class="cell">1.150.000</td></tr>
+              </table>
+              <div class="mini">Pesanan yang sudah dibuat mempertahankan harga lama (price_breakdown dibekukan).</div>
+            </div>
+            <div class="cols" style="grid-template-rows: auto 1fr">
+              <div class="panel">
+                <div class="ph"><span>Surcharge aktif</span><span class="mini">+ Tambah</span></div>
+                <table class="t">
+                  <tr><td>Malam 22.00–06.00</td><td class="cell">+50k / 75k / 100k</td></tr>
+                  <tr><td>Hari raya (tanggal dikelola)</td><td class="cell">+15 %</td></tr>
+                  <tr><td>Tunggu &gt; 60 mnt</td><td class="cell">25k–40k / 30 mnt</td></tr>
+                  <tr><td>Child seat (atas permintaan)</td><td class="cell">+50k</td></tr>
+                  <tr><td>Roof rack</td><td class="cell">+50k</td></tr>
+                </table>
+              </div>
+              <div class="panel">
+                <div class="ph"><span>Pratinjau quote</span></div>
+                <div class="filters"><span class="inp">Z3 Senggigi ▾</span><span class="inp">MPV Standar ▾</span><span class="inp">14 Okt 05.30</span></div>
+                <div class="kv"><span>Tarif dasar</span><span>Rp 300.000</span></div>
+                <div class="kv"><span>Surcharge malam</span><span>+ Rp 50.000</span></div>
+                <div class="kv"><span><b>Total customer</b></span><span><b>Rp 350.000</b></span></div>
+                <div class="kv"><span>Komisi 15 % · bersih driver</span><span>Rp 52.500 · Rp 297.500</span></div>
+                <div class="btnrow"><div class="btn sm ghost">Simpan draf</div><div class="btn sm admin">Publikasikan mulai 1 Nov</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="deskcap"><b>4 · Matriks tarif dan surcharge</b>Grid zona × kelas per jenis layanan dengan <code>valid_from</code>, surcharge, dan pratinjau quote sebelum publikasi; perubahan dicatat di audit log. Rute <code>/admin/tarif</code>.</div>
+  </div>
+
+</div>
+<footer class="fig"><span>Lembar Transport · PRD v1.0 · Bab 10.6</span><span>Wireframe low-fidelity · resolusi acuan 1280 px · data contoh</span></footer>
+</body>
+</html>

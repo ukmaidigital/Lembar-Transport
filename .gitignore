@@ -1,0 +1,8 @@
+# dependencies / tooling
+node_modules/
+# intermediate build output of tools/prd/build.sh (HTML + temp files)
+tools/prd/build/
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log

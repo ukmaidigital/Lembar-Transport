@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Alur pemesanan customer — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+</head>
+<body data-width="2000" data-scale="2">
+<header class="fig">
+  <h1>Alur pemesanan customer end-to-end<small>Dari pencarian sampai rating: siapa melakukan apa (Customer, Sistem, Admin/Ops, Driver), cabang pembayaran tunai vs non-tunai, dan cabang gagal (pembayaran kedaluwarsa, tidak ada driver setelah tiga gelombang).</small></h1>
+  <span class="tag">Gambar 2 · PRD v1.0</span>
+</header>
+<svg class="diagram" id="svg" width="1936" height="720" viewBox="0 0 1936 720" role="img" aria-label="Swimlane alur pemesanan: customer mencari dan memesan, sistem memberi quote dan konfirmasi, admin meninjau pembayaran dan menangani pesanan tanpa driver, driver menerima tawaran dan menjalankan trip, customer memberi rating."></svg>
+<footer class="fig"><span>Lembar Transport · PRD v1.0 · Bab 6.1</span><span>Panah penuh = jalur utama · putus-putus = cabang alternatif/gagal · kotak merah = kondisi gagal</span></footer>
+<script src="_lib.js"></script>
+<script>
+const d = Diagram(document.getElementById('svg'));
+const C = { customer: '#2a78d6', driver: '#eb6834', admin: '#1baf7a', system: '#64748b', fail: '#d03b3b' };
+
+// Lanes
+const LX = 14, LW = 1908, LH = 170, LY0 = 10, LABEL = 110;
+[['Customer', 'customer'], ['Sistem', 'system'], ['Admin / Ops', 'admin'], ['Driver', 'driver']]
+  .forEach(([label, tone], i) => d.lane({ x: LX, y: LY0 + i * LH, w: LW, h: LH - 6, label, tone, labelWidth: LABEL }));
+const CUS = 0, SYS = 1, ADM = 2, DRV = 3;
+const laneY = (i) => LY0 + i * LH;
+const rowTop = (lane) => laneY(lane) + 12;
+const rowBottom = (lane) => laneY(lane) + 84;
+const CX0 = LX + LABEL + 18, CW = 152, CG = 10;
+const cx = (c) => CX0 + (c - 1) * (CW + CG);
+const B = (id, c, lane, slot, title, lines, tone) => d.box({ id, x: cx(c), y: slot === 'b' ? rowBottom(lane) : rowTop(lane), w: CW, h: 64, tone, title, lines, titleSize: 11.5, lineSize: 10.5, pad: 6 });
+
+// Boxes
+B('c1', 1, CUS, 't', 'Cari perjalanan', ['tujuan, tanggal & jam', 'tiba, penumpang, bagasi'], 'customer');
+B('s1', 2, SYS, 't', 'Quote per kelas', ['rincian harga, kapasitas,', 'harga dikunci 30 menit'], 'system');
+B('c2', 3, CUS, 't', 'Pilih kelas & data', ['data feri + tanggal tiba,', 'kontak, OTP WhatsApp'], 'customer');
+B('c3', 4, CUS, 't', 'Pilih metode bayar', ['tunai · transfer/QRIS', '· gateway (bila aktif)'], 'customer');
+d.box({ id: 'dec', x: cx(4) + 16, y: rowTop(SYS) + 2, w: 120, h: 60, tone: 'system', shape: 'diamond', title: 'Tunai?', titleSize: 11.5 });
+B('s2', 5, SYS, 't', 'pending_payment', ['instruksi bayar, batas', 'waktu 2 jam / T-6 jam'], 'warning');
+B('s2x', 5, SYS, 'b', 'expired', ['Timer: batas waktu lewat', '→ tautan pesan ulang'], 'critical');
+B('c4', 5, CUS, 't', 'Bayar', ['unggah bukti transfer', 'atau bayar via gateway'], 'customer');
+B('a1', 5, ADM, 't', 'Finance review bukti', ['cocokkan jumlah,', 'konfirmasi / tolak'], 'admin');
+B('s3', 6, SYS, 't', 'confirmed', ['jadwalkan dispatch:', 'segera atau T-48 jam'], 'system');
+B('s4', 7, SYS, 't', 'Dispatch gelombang', ['gelombang 1–3 ke driver', 'layak, timeout 2–3 menit'], 'system');
+B('d1', 7, DRV, 't', 'Terima tawaran', ['pendapatan bersih tampil,', 'penerimaan pertama menang'], 'driver');
+B('a2', 8, ADM, 'b', 'needs_attention', ['assign manual atau', 'tawarkan kelas lain'], 'serious');
+B('s5', 8, SYS, 't', 'assigned', ['kirim kartu driver: foto,', 'pelat, titik temu'], 'system');
+B('c5', 8, CUS, 't', 'Terima data driver', ['email + WhatsApp,', 'pengingat H-1'], 'customer');
+B('c6', 9, CUS, 't', '"Kapal sudah sandar"', ['hari H dari halaman tiket', '= jangkar tunggu gratis'], 'customer');
+B('s6', 9, SYS, 't', 'Jangkar sandar', ['timer tunggu gratis 60', 'menit, notifikasi driver'], 'system');
+B('d2', 9, DRV, 't', 'en_route → arrived', ['tiba di titik temu,', 'tampilkan papan nama'], 'driver');
+B('d3', 10, DRV, 't', 'on_trip → completed', ['penumpang naik, selesai,', 'catat tunai diterima'], 'driver');
+B('s7', 10, SYS, 't', 'completed', ['ledger komisi/pendapatan,', 'kuitansi, buka rating'], 'good');
+B('c7', 11, CUS, 't', 'Rating & ulasan', ['≤ 7 hari setelah selesai'], 'customer');
+
+// Edges
+const E = (from, to, o = {}) => d.edge(Object.assign({ from, to, fromSide: 'r', toSide: 'l', color: C.system }, o));
+E('c1', 's1', { color: C.customer });
+E('s1', 'c2');
+E('c2', 'c3', { color: C.customer });
+d.edge({ from: 'c3', to: 'dec', fromSide: 'b', toSide: 't', color: C.customer });
+d.edge({ from: 'dec', to: 's2', fromSide: 'r', toSide: 'l', color: C.system, label: 'tidak', labelDy: -6, at: 0.6 });
+// cash branch: leaves the diamond on the left, runs along the lane bottom, enters confirmed from the left
+d.edge({ from: 'dec', to: 's3', fromSide: 'l', toSide: 'l', toT: 0.75, color: C.system, label: 'ya: tunai',
+  via: [{ x: cx(4) - 5, y: rowTop(SYS) + 32 }, { x: cx(4) - 5, y: laneY(SYS) + 158 }, { x: cx(6) - 5, y: laneY(SYS) + 158 }, { x: cx(6) - 5, y: rowTop(SYS) + 48 }], at: 0.12, labelDy: 0 });
+d.edge({ from: 's2', to: 'c4', fromSide: 't', toSide: 'b', color: C.system, label: 'instruksi', labelDy: 4 });
+d.edge({ from: 's2', to: 's2x', fromSide: 'b', toSide: 't', fromT: 0.3, toT: 0.3, color: C.fail, dashed: true });
+// transfer proof goes to Finance (left gap of column 5), gateway webhook goes straight to confirmed (over the customer lane)
+d.edge({ from: 'c4', to: 'a1', fromSide: 'l', toSide: 'l', fromT: 0.75, toT: 0.5, color: C.customer, label: 'bukti transfer', at: 0.32, labelDy: 4,
+  via: [{ x: cx(5) - 5, y: rowTop(CUS) + 48 }, { x: cx(5) - 5, y: rowTop(ADM) + 32 }] });
+d.edge({ from: 'c4', to: 's3', fromSide: 't', toSide: 't', fromT: 0.5, toT: 0.66, color: C.customer, dashed: true, label: 'gateway: webhook', label2: 'settlement otomatis', at: 0.78, labelDy: -6,
+  via: [{ x: cx(5) + 76, y: laneY(CUS) + 4 }, { x: cx(6) + 100, y: laneY(CUS) + 4 }] });
+d.edge({ from: 'a1', to: 's3', fromSide: 'r', toSide: 'b', fromT: 0.5, toT: 0.5, color: C.admin, label: 'konfirmasi', at: 0.3, labelDy: -6 });
+E('s3', 's4');
+d.edge({ from: 's4', to: 'd1', fromSide: 'b', toSide: 't', color: C.system, label: 'tawaran', labelDy: 4, at: 0.5 });
+d.edge({ from: 'd1', to: 's5', fromSide: 'r', toSide: 'l', toT: 0.75, color: C.driver, label: 'terima', labelDy: -6, at: 0.5, midX: cx(8) - 5 });
+d.edge({ from: 's4', to: 'a2', fromSide: 'b', toSide: 'l', fromT: 0.85, toT: 0.5, color: C.fail, dashed: true, label: '3 gelombang kosong', at: 0.4, labelDy: 0 });
+d.edge({ from: 'a2', to: 's5', fromSide: 't', toSide: 'b', color: C.admin, dashed: true, label: 'assign manual', at: 0.5, labelDy: 0 });
+d.edge({ from: 's5', to: 'c5', fromSide: 't', toSide: 'b', color: C.system, label: 'kartu driver', labelDy: 4 });
+E('c5', 'c6', { color: C.customer });
+d.edge({ from: 'c6', to: 's6', fromSide: 'b', toSide: 't', color: C.customer, label: 'tap', labelDy: 4 });
+d.edge({ from: 's6', to: 'd2', fromSide: 'b', toSide: 't', color: C.system, label: 'notifikasi', labelDy: 4, at: 0.5 });
+E('d2', 'd3', { color: C.driver });
+d.edge({ from: 'd3', to: 's7', fromSide: 't', toSide: 'b', color: C.driver, label: 'selesai', labelDy: 4, at: 0.5 });
+E('s7', 'c7', { label: 'tautan rating', labelDy: -6, at: 0.5 });
+
+// Notes & legend
+d.note({ x: cx(1), y: rowBottom(SYS), w: CW * 2 + CG, text: ['Order dadakan (QR terminal) memakai alur', 'yang sama dengan pickup_at = sekarang', 'dan gelombang 60 detik.'], size: 10.5 });
+d.note({ x: cx(1), y: rowTop(DRV), w: CW * 3 + CG * 2, text: ['Driver menerima pengingat H-1 (20.00 WITA) dan 2 jam sebelum', 'estimasi sandar; tombol Menuju Pelabuhan terbuka sejak pengingat kedua.'], size: 10.5 });
+d.legend({ x: cx(9), y: rowBottom(ADM) + 2, columns: 2, colWidth: 160, items: [
+  { line: C.customer, label: 'Aksi customer' }, { line: C.fail, dashed: true, label: 'Cabang gagal' },
+  { line: C.system, label: 'Aksi sistem' }, { tone: 'warning', label: 'Menunggu customer' },
+  { line: C.admin, label: 'Aksi admin' }, { tone: 'critical', label: 'Kondisi gagal' },
+  { line: C.driver, label: 'Aksi driver' }, { tone: 'good', label: 'Selesai' },
+]});
+</script>
+</body>
+</html>

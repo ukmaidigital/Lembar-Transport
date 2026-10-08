@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Alur onboarding driver — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+</head>
+<body data-width="1860" data-scale="2">
+<header class="fig">
+  <h1>Alur pendaftaran, verifikasi, dan manajemen driver<small>Pendaftaran mandiri atau oleh admin, review dokumen berdampingan, siklus revisi, aktivasi, pemantauan dokumen kedaluwarsa, penangguhan, dan verifikasi ulang saat kendaraan diganti.</small></h1>
+  <span class="tag">Gambar 3 · PRD v1.0</span>
+</header>
+<svg class="diagram" id="svg" width="1796" height="560" viewBox="0 0 1796 560" role="img" aria-label="Swimlane onboarding driver: driver mendaftar dan mengunggah dokumen, sistem menandai submitted, verifikator meninjau dan memutuskan aktif, revisi, atau tolak; sistem memantau dokumen kedaluwarsa; admin dapat menangguhkan; penggantian kendaraan memicu verifikasi ulang."></svg>
+<footer class="fig"><span>Lembar Transport · PRD v1.0 · Bab 6.2</span><span>Status driver: draft → submitted → active | revision_required | rejected; active ⇄ suspended</span></footer>
+<script src="_lib.js"></script>
+<script>
+const d = Diagram(document.getElementById('svg'));
+const C = { driver: '#eb6834', system: '#64748b', admin: '#1baf7a', fail: '#d03b3b' };
+
+const LX = 14, LW = 1768, LH = 176, LY0 = 10, LABEL = 110;
+[['Driver', 'driver'], ['Sistem', 'system'], ['Verifikator /\nAdmin', 'admin']]
+  .forEach(([label, tone], i) => d.lane({ x: LX, y: LY0 + i * LH, w: LW, h: LH - 6, label, tone, labelWidth: LABEL }));
+const DRV = 0, SYS = 1, ADM = 2;
+const laneY = (i) => LY0 + i * LH;
+const rowTop = (lane) => laneY(lane) + 10;
+const rowBottom = (lane) => laneY(lane) + 88;
+const CX0 = LX + LABEL + 18, CW = 152, CG = 10;
+const cx = (c) => CX0 + (c - 1) * (CW + CG);
+const B = (id, c, lane, slot, title, lines, tone) => d.box({ id, x: cx(c), y: slot === 'b' ? rowBottom(lane) : rowTop(lane), w: CW, h: 68, tone, title, lines, titleSize: 11.5, lineSize: 10.5, pad: 6 });
+
+B('d1', 1, DRV, 't', 'Daftar mandiri', ['/driver/daftar, OTP WA,', 'wizard 4 langkah (draft)'], 'driver');
+B('a0', 1, ADM, 't', 'Daftarkan atas nama', ['admin mengisi data dan', 'mengunggah dokumen'], 'admin');
+B('d2', 2, DRV, 't', 'Unggah dokumen', ['KTP, SIM A, STNK, SKCK,', 'selfie, foto mobil, rekening'], 'driver');
+B('s1', 3, SYS, 't', 'submitted', ['validasi kelengkapan,', 'SLA 24 jam kerja dimulai'], 'system');
+B('a1', 4, ADM, 't', 'Review berdampingan', ['dokumen vs data isian,', 'daftar periksa, zoom'], 'admin');
+d.box({ id: 'dec', x: cx(5) + 11, y: rowTop(ADM) + 2, w: 130, h: 64, tone: 'admin', shape: 'diamond', title: 'Semua\ndokumen OK?', titleSize: 11 });
+B('s3', 5, SYS, 'b', 'revision_required', ['alasan per dokumen;', 'unggah ulang yang ditolak'], 'warning');
+B('s2', 6, SYS, 't', 'active', ['notifikasi sambutan,', 'panduan mitra, bisa online'], 'good');
+B('a2', 6, ADM, 'b', 'rejected', ['dokumen palsu / catatan', 'kriminal; hapus data 90 hari'], 'critical');
+B('d3', 7, DRV, 't', 'Operasi harian', ['online/offline, kalender,', 'tawaran, jalankan trip'], 'driver');
+B('s4', 8, SYS, 't', 'Pemantauan dokumen', ['pengingat H-30/H-7/H-1,', 'dokumen kedaluwarsa →', 'tawaran diblokir'], 'system');
+B('a3', 9, ADM, 't', 'Tangguhkan', ['komplain berat, penarikan', 'diri berulang, saldo negatif'], 'admin');
+B('s5', 9, SYS, 'b', 'suspended', ['tawaran dihentikan;', 'aktifkan kembali beralasan'], 'critical');
+B('d4', 10, DRV, 't', 'Ganti kendaraan', ['verifikasi ulang dokumen', 'kendaraan; mobil lama', 'tetap aktif'], 'driver');
+
+d.edge({ from: 'd1', to: 'd2', color: C.driver });
+d.edge({ from: 'a0', to: 's1', fromSide: 'r', toSide: 'l', toT: 0.75, midX: cx(2) + 20, color: C.admin, dashed: true, label: 'atas nama', at: 0.5, labelDy: 0 });
+d.edge({ from: 'd2', to: 's1', fromSide: 'r', toSide: 'l', toT: 0.3, midX: cx(3) - 5, color: C.driver, label: 'ajukan', labelDy: 0, at: 0.5 });
+d.edge({ from: 's1', to: 'a1', fromSide: 'r', toSide: 'l', midX: cx(4) - 5, color: C.system, label: 'notifikasi verifier', at: 0.25, labelDy: 4 });
+d.edge({ from: 'a1', to: 'dec', fromSide: 'r', toSide: 'l', color: C.admin });
+d.edge({ from: 'dec', to: 's3', fromSide: 't', toSide: 'b', color: C.admin, label: 'sebagian ditolak', at: 0.5, labelDy: 0 });
+d.edge({ from: 'dec', to: 's2', fromSide: 'r', toSide: 'l', midX: cx(6) - 5, color: C.admin });
+d.text(cx(6) + 86, rowBottom(SYS) + 18, 'ya → aktifkan', { size: 11.5, weight: 600, color: '#334155' });
+d.edge({ from: 'dec', to: 'a2', fromSide: 'b', toSide: 'l', toT: 0.5, color: C.fail, label: 'tolak permanen', at: 0.3, labelDy: 0 });
+d.edge({ from: 's3', to: 'd2', fromSide: 'l', toSide: 'b', fromT: 0.5, toT: 0.5, color: C.fail, dashed: true, label: 'unggah ulang dokumen yang ditolak → kembali submitted', at: 0.5, labelDy: -6,
+  via: [{ x: cx(2) + 76, y: rowBottom(SYS) + 34 }] });
+d.edge({ from: 's2', to: 'd3', fromSide: 'r', toSide: 'l', midX: cx(7) - 5, color: C.system, label: 'aktif', labelDy: 0, at: 0.5 });
+d.edge({ from: 'd3', to: 's4', fromSide: 'r', toSide: 'l', fromT: 0.8, midX: cx(8) - 5, color: C.system, label: 'berkala', labelDy: 4, at: 0.7 });
+d.edge({ from: 's4', to: 'd3', fromSide: 't', toSide: 'r', fromT: 0.3, toT: 0.2, color: C.system, dashed: true, label: 'dokumen baru disetujui → tawaran dibuka', at: 0.3, labelDy: 4 });
+d.edge({ from: 's4', to: 'a3', fromSide: 'b', toSide: 't', midY: laneY(ADM) - 3, color: C.admin, label: 'pelanggaran / review', at: 0.5, labelDy: -6 });
+d.edge({ from: 'a3', to: 's5', fromSide: 't', toSide: 'b', color: C.fail, label: 'suspend', labelDy: 0, at: 0.5 });
+d.edge({ from: 's5', to: 's2', fromSide: 'l', toSide: 'b', fromT: 0.5, toT: 0.5, color: C.admin, dashed: true, label: 'aktifkan kembali dengan alasan', at: 0.5, labelDy: -6,
+  via: [{ x: cx(6) + 76, y: rowBottom(SYS) + 34 }] });
+d.edge({ from: 'd3', to: 'd4', fromSide: 't', toSide: 't', color: C.driver, dashed: true, label: 'perubahan data kendaraan', at: 0.5, labelDy: -5,
+  via: [{ x: cx(7) + 76, y: laneY(DRV) + 3 }, { x: cx(10) + 76, y: laneY(DRV) + 3 }] });
+d.edge({ from: 'd4', to: 's1', fromSide: 'b', toSide: 't', color: C.driver, dashed: true, label: 'verifikasi ulang dokumen kendaraan', at: 0.2, labelDy: -6,
+  via: [{ x: cx(10) + 76, y: laneY(SYS) + 3 }, { x: cx(3) + 76, y: laneY(SYS) + 3 }] });
+
+d.note({ x: cx(1), y: rowBottom(ADM) + 2, w: CW * 2 + CG, text: ['Status driver: draft → submitted → active |', 'revision_required | rejected; active ⇄ suspended.', 'SLA verifikasi ≤ 24 jam kerja (FR-ADM-03).'], size: 10.5 });
+d.legend({ x: cx(7), y: rowBottom(ADM) + 10, columns: 3, colWidth: 150, items: [
+  { line: C.driver, label: 'Aksi driver' }, { line: C.system, label: 'Aksi sistem' }, { line: C.admin, label: 'Aksi admin' },
+  { line: C.fail, dashed: true, label: 'Jalur gagal/loop' }, { tone: 'good', label: 'Aktif' }, { tone: 'critical', label: 'Ditolak/ditangguhkan' },
+]});
+</script>
+</body>
+</html>

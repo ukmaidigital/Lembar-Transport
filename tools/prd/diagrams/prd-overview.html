@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Ringkasan PRD — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+<style>
+  body { padding: 0; }
+  .poster { width: 1400px; padding: 40px 44px 32px; display: flex; flex-direction: column; gap: 22px; background: #fff; }
+  .hero { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; border-bottom: 3px solid var(--ink); padding-bottom: 18px; }
+  .hero h1 { font-size: 40px; margin: 0; letter-spacing: -0.02em; line-height: 1.05; }
+  .hero h1 small { display: block; font-size: 17px; font-weight: 500; color: var(--ink-2); margin-top: 10px; letter-spacing: 0; line-height: 1.4; max-width: 820px; }
+  .meta { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; font-size: 12px; color: var(--ink-2); }
+  .meta .chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 11.5px; color: var(--ink-2); background: #fff; }
+  .chip.dark { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
+  .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
+  .grid3 { display: grid; grid-template-columns: 1.05fr 1.3fr 1fr; gap: 20px; }
+  .box { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; background: #fff; }
+  .box h3 { margin: 0 0 8px; font-size: 15px; }
+  .box ul { margin: 0; padding-left: 16px; font-size: 12.5px; line-height: 1.5; color: #1e293b; }
+  .box ul li { margin-bottom: 4px; }
+  .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .role { border-radius: 12px; padding: 12px; font-size: 12px; line-height: 1.45; }
+  .role b { display: block; font-size: 13.5px; margin-bottom: 4px; }
+  .role.c { background: var(--customer-bg); color: var(--customer-ink); }
+  .role.d { background: var(--driver-bg); color: var(--driver-ink); }
+  .role.a { background: var(--admin-bg); color: var(--admin-ink); }
+  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .tile { border: 1px solid var(--hair); border-radius: 12px; padding: 12px 14px; background: var(--panel); }
+  .tile .lbl { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .tile .val { font-size: 26px; font-weight: 700; margin: 2px 0; }
+  .tile .sub { font-size: 11px; color: var(--ink-2); }
+  .flow { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .step { position: relative; border-radius: 12px; padding: 12px 12px 12px 14px; font-size: 12px; line-height: 1.4; border: 1px solid var(--line); background: #fff; }
+  .step .n { position: absolute; top: -10px; left: 12px; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .step b { display: block; margin-bottom: 3px; font-size: 13px; }
+  .step.c { border-color: var(--customer); } .step.s { border-color: var(--ink-3); } .step.d { border-color: var(--driver); } .step.a { border-color: var(--admin); }
+  .step .who { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .step.c .who { color: var(--customer-ink); } .step.s .who { color: var(--ink-3); } .step.d .who { color: var(--driver-ink); } .step.a .who { color: var(--admin-ink); }
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .ui { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--line); }
+  .ui h3 { margin: 0; font-size: 15px; display: flex; justify-content: space-between; align-items: baseline; }
+  .ui h3 code { font-size: 11px; font-weight: 500; color: var(--ink-3); }
+  .ui .tag { font-size: 11px; color: var(--ink-3); margin: 2px 0 8px; }
+  .ui ul { margin: 0; padding-left: 16px; font-size: 12.5px; line-height: 1.5; }
+  .ui.c { border-top: 4px solid var(--customer); } .ui.d { border-top: 4px solid var(--driver); } .ui.a { border-top: 4px solid var(--admin); }
+  .arch { display: flex; align-items: stretch; gap: 10px; }
+  .arch .node { border-radius: 12px; padding: 12px 14px; font-size: 12px; line-height: 1.4; flex: 1; border: 1.5px solid var(--line); background: #fff; }
+  .arch .node b { display: block; font-size: 13.5px; margin-bottom: 3px; }
+  .arch .node.ext { border-style: dashed; }
+  .arch .arrow { display: flex; align-items: center; color: var(--ink-3); font-size: 18px; flex: none; }
+  .rules { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .rule { border-radius: 12px; padding: 12px; background: var(--panel); border: 1px solid var(--hair); font-size: 12px; line-height: 1.45; }
+  .rule b { display: block; font-size: 13px; margin-bottom: 3px; }
+  .timeline { display: grid; grid-template-columns: 0.6fr 1.9fr 1.4fr 1fr; gap: 10px; }
+  .phase { border-radius: 12px; padding: 12px 14px; font-size: 12px; line-height: 1.45; border: 1px solid var(--line); position: relative; }
+  .phase b { display: block; font-size: 13.5px; }
+  .phase .dur { font-size: 11px; color: var(--ink-3); margin-bottom: 6px; }
+  .phase.p1 { background: var(--customer-bg); border-color: var(--customer); }
+  .grid3b { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; }
+  .foot { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-3); border-top: 1px solid var(--hair); padding-top: 12px; }
+  .foot code { color: var(--ink-2); }
+</style>
+</head>
+<body data-width="1400" data-scale="2">
+<div class="poster">
+
+  <div class="hero">
+    <h1>Lembar Transport<small>Platform pemesanan kendaraan (mobil + driver) dari Pelabuhan Lembar, Lombok Barat: harga pasti yang dikaitkan dengan jadwal feri, driver mitra terverifikasi, dan kendali operasional penuh untuk admin.</small></h1>
+    <div class="meta">
+      <div class="chips"><span class="chip dark">PRD v1.0 · Draft</span><span class="chip">8 Oktober 2026</span><span class="chip">Bahasa Indonesia</span></div>
+      <div class="chips"><span class="chip">Laravel REST API</span><span class="chip">MySQL 8</span><span class="chip">Next.js App Router</span><span class="chip">Redis · S3</span><span class="chip">WITA</span></div>
+      <div>Gambar 1 · ringkasan satu halaman dari <code>docs/PRD-Lembar-Transport.md</code></div>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="box">
+      <div class="label">Masalah</div>
+      <ul>
+        <li><b>Harga tidak transparan</b> — tawar-menawar dengan calo; wisatawan membayar 2–3× tarif wajar.</li>
+        <li><b>Ketidakpastian</b> — feri sering terlambat 1–3 jam dan tiba dini hari; tidak ada jaminan kendaraan.</li>
+        <li><b>Tanpa sinyal di laut</b> — keputusan terpaksa diambil di pelataran yang padat.</li>
+        <li><b>Driver dirugikan</b> — menunggu berjam-jam, bergantung pada calo, tanpa rekam pendapatan.</li>
+        <li><b>Operator tanpa kendali</b> — tidak ada verifikasi identitas driver dan kelayakan kendaraan.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <div class="label">Solusi — satu API, tiga antarmuka</div>
+      <div class="roles">
+        <div class="role c"><b>Customer</b>Harga pasti dalam hitungan detik, pemesanan terikat jadwal feri, bayar tunai/non-tunai, kartu driver dan titik temu sebelum sandar, status perjalanan.</div>
+        <div class="role d"><b>Driver mitra</b>Pendaftaran dan dokumen, tawaran order yang adil, empat tombol status, papan nama, pendapatan dan saldo transparan, PWA toleran offline.</div>
+        <div class="role a"><b>Admin</b>Verifikasi dan manajemen driver, papan pesanan dan dispatch, tarif per zona × kelas, konfirmasi pembayaran, laporan, audit.</div>
+      </div>
+      <p style="margin:12px 0 0;font-size:12.5px;color:#334155">Tarif <b>tetap</b> per zona tujuan dan kelas kendaraan; dispatch otomatis bergelombang dengan admin sebagai pengendali akhir; model marketplace dengan komisi dari mitra.</p>
+    </div>
+    <div class="box">
+      <div class="label">Target 6 bulan setelah peluncuran</div>
+      <div class="tiles">
+        <div class="tile"><div class="lbl">Trip selesai / bulan</div><div class="val">≥ 600</div><div class="sub">north star</div></div>
+        <div class="tile"><div class="lbl">Konversi quote → pesanan</div><div class="val">≥ 25 %</div><div class="sub">tamu via OTP WhatsApp</div></div>
+        <div class="tile"><div class="lbl">Penjemputan tepat waktu</div><div class="val">≥ 95 %</div><div class="sub">≤ 15 menit setelah sandar</div></div>
+        <div class="tile"><div class="lbl">CSAT</div><div class="val">≥ 4,6</div><div class="sub">pembatalan platform &lt;&nbsp;3&nbsp;%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Alur inti pemesanan</div>
+    <div class="flow">
+      <div class="step c"><span class="n">1</span><div class="who">Customer</div><b>Cari</b>tujuan, tanggal/jam tiba, penumpang, bagasi</div>
+      <div class="step s"><span class="n">2</span><div class="who">Sistem</div><b>Quote</b>harga per kelas, rincian surcharge, dikunci 30 menit</div>
+      <div class="step c"><span class="n">3</span><div class="who">Customer</div><b>Data feri + OTP</b>operator, jam berangkat, tanggal tiba; checkout tamu</div>
+      <div class="step c"><span class="n">4</span><div class="who">Customer</div><b>Bayar</b>tunai, transfer/QRIS (review Finance), atau gateway</div>
+      <div class="step s"><span class="n">5</span><div class="who">Sistem</div><b>Dispatch</b>gelombang 1–3 ke driver layak; fallback Ops</div>
+      <div class="step d"><span class="n">6</span><div class="who">Driver</div><b>Terima & siap</b>kartu driver dikirim; pengingat H-1 dan T-2 jam</div>
+      <div class="step c"><span class="n">7</span><div class="who">Customer</div><b>"Kapal sudah sandar"</b>jangkar tunggu gratis 60 menit; papan nama di Gate A</div>
+      <div class="step d"><span class="n">8</span><div class="who">Driver</div><b>Trip & selesai</b>penumpang naik → selesai; ledger, kuitansi, rating</div>
+    </div>
+  </div>
+
+  <div class="cols3">
+    <div class="ui c">
+      <h3>Antarmuka Customer <code>/ · /en</code></h3>
+      <div class="tag">Web publik, SSR, mobile-first, ID/EN</div>
+      <ul>
+        <li>Landing dan pencarian dengan autocomplete tujuan</li>
+        <li>Quote per kelas dengan validasi kapasitas</li>
+        <li>Formulir data feri (tanggal tiba eksplisit) dan OTP</li>
+        <li>Pembayaran tunai, transfer/QRIS, gateway (Should)</li>
+        <li>Tiket ringan: timeline, kartu driver, titik temu berfoto</li>
+        <li>Pembatalan sesuai tier, rating, riwayat, harga publik</li>
+      </ul>
+    </div>
+    <div class="ui d">
+      <h3>Antarmuka Driver <code>/driver</code></h3>
+      <div class="tag">PWA, Android kelas bawah, offline-tolerant</div>
+      <ul>
+        <li>Pendaftaran 4 langkah dan unggah dokumen (KTP, SIM, STNK, SKCK…)</li>
+        <li>Status verifikasi dengan alasan per dokumen</li>
+        <li>Online/offline, kalender, tawaran dengan hitung mundur</li>
+        <li>Detail trip dan tombol status tunggal berganti tahap</li>
+        <li>Papan nama layar penuh, catat tunai, SOS</li>
+        <li>Ledger pendapatan, komisi, saldo, top-up</li>
+      </ul>
+    </div>
+    <div class="ui a">
+      <h3>Antarmuka Admin <code>/admin</code></h3>
+      <div class="tag">Desktop, 2FA, RBAC: Super Admin · Ops · Verifier · Finance</div>
+      <ul>
+        <li>Dashboard KPI dan penjemputan hari ini</li>
+        <li>Antrean verifikasi berdampingan, SLA 24 jam, aktif/revisi/tolak</li>
+        <li>Manajemen driver dan kendaraan, suspend, daftarkan atas nama</li>
+        <li>Papan pesanan, pesanan manual, assign/reassign, no-show</li>
+        <li>Review bukti transfer, refund, ledger, payout mingguan</li>
+        <li>Tarif zona × kelas, surcharge, pengaturan, laporan, audit</li>
+      </ul>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Arsitektur ringkas</div>
+    <div class="arch">
+      <div class="node"><b>Pengguna</b>Customer (browser), Driver (PWA), Admin (desktop) melalui Cloudflare</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Next.js (App Router)</b>Area publik/customer SSR, <code>/driver</code> PWA, <code>/admin</code>; BFF menyimpan token Sanctum di cookie httpOnly</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Laravel REST API <code>/api/v1</code></b>Auth · Drivers · Vehicles · Pricing · Booking · Dispatch · Payments · Ledger · Notifications · Reporting; Horizon + scheduler</div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Penyimpanan</b>MySQL 8 (transaksi, JSON price_breakdown), Redis (queue, cache, lock), object storage S3 (dokumen, signed URL)</div>
+      <div class="arrow">⇢</div>
+      <div class="node ext"><b>Layanan eksternal</b>Midtrans Snap, WhatsApp/SMS, email, peta (OSM → Google Maps), Sentry; hosting region Jakarta, Docker, CI GitHub Actions</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Aturan bisnis kunci</div>
+    <div class="rules">
+      <div class="rule"><b>Tarif tetap</b>Matriks 8 zona × 4 kelas (MPV Standar/Premium, Minibus 12/16); termasuk BBM, driver, pas pelabuhan.</div>
+      <div class="rule"><b>Surcharge</b>Malam 22.00–06.00 +Rp 50–100 rb; hari raya +15 %; child seat dan roof rack +Rp 50 rb.</div>
+      <div class="rule"><b>Tunggu gratis 60 menit</b>Dihitung dari jangkar sandar: tombol customer → pembaruan Ops → estimasi + 60 menit.</div>
+      <div class="rule"><b>Pembatalan</b>≥ 24 jam gratis · 6–24 jam 50 % · &lt; 6 jam atau setelah en_route 100 %; no-show setelah grace 30 menit.</div>
+      <div class="rule"><b>Komisi 15 %</b>Prabayar: saldo dikredit bersih, payout Senin ≥ Rp 50 rb. Tunai: komisi didebit; saldo &lt; −Rp 100 rb memblokir tawaran.</div>
+      <div class="rule"><b>Dispatch adil</b>Skor rating 40 % · acceptance 20 % · tepat waktu 20 % · idle 20 %; penerimaan pertama menang; 3 gelombang → needs_attention.</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Roadmap</div>
+    <div class="timeline">
+      <div class="phase"><b>Fase 0 · Discovery</b><div class="dur">2 minggu</div>Validasi tarif dengan driver, koperasi dan review legal, akun merchant dan WhatsApp, desain hi-fi, draf OpenAPI.</div>
+      <div class="phase p1"><b>Fase 1 · MVP</b><div class="dur">10 minggu (5 sprint) + pilot 4 minggu</div>Auth dan RBAC → onboarding dan verifikasi → tarif, quote, pemesanan → dispatch, trip, PWA offline → pembayaran, notifikasi, ledger, laporan, hardening. Pilot 15–25 driver, ≥ 150 trip, CSAT ≥ 4,5.</div>
+      <div class="phase"><b>Fase 2</b><div class="dur">8–10 minggu</div>Gateway penuh dan refund otomatis, WhatsApp Business API, web push, pelacakan langsung, antrian digital pelabuhan, pulang-pergi dan charter, reschedule, promo, DP, kuitansi PDF.</div>
+      <div class="phase"><b>Fase 3</b><div class="dur">ditentukan kemudian</div>Akun B2B, origin tambahan (Gili Mas, Bandara), integrasi jadwal kapal, analitik lanjutan, masking telepon.</div>
+    </div>
+  </div>
+
+  <div class="grid3b">
+    <div class="box">
+      <div class="label">Risiko utama dan mitigasi</div>
+      <ul>
+        <li><b>Pasokan driver dini hari/musim puncak</b> → pre-booking, dispatch T-48 jam, pool siaga, assign manual.</li>
+        <li><b>Transaksi bocor ke luar platform</b> → titik temu dan papan nama resmi, pencatatan tunai, saldo komisi, sanksi S&K.</li>
+        <li><b>Regulasi angkutan sewa khusus</b> → kemitraan koperasi, SIM A Umum dan KIR disiapkan, review legal di Fase 0.</li>
+        <li><b>Kebocoran data identitas</b> → enkripsi, akses teraudit, signed URL, retensi ketat, uji penetrasi.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <div class="label">Kepatuhan</div>
+      <ul>
+        <li>UU PDP 27/2022: consent, minimisasi, retensi, hak subjek data ≤ 3×24 jam, hosting Indonesia.</li>
+        <li>Pendaftaran PSE Lingkup Privat sebelum peluncuran publik.</li>
+        <li>Permenhub PM 118/2018 melalui koperasi mitra (perlu review legal).</li>
+        <li>UU 8/1999: harga dan kebijakan pembatalan jelas sebelum bayar; komplain ≤ 7 hari kerja.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <div class="label">Pertanyaan terbuka</div>
+      <ul>
+        <li>Komisi tetap 15 % atau bertingkat per kelas/zona?</li>
+        <li>DP wajib untuk minibus dan pesanan ≥ 2 kendaraan sejak MVP?</li>
+        <li>Asuransi penumpang melalui koperasi atau produk tambahan?</li>
+        <li>Pas pelabuhan dan parkir termasuk tarif (asumsi) atau terpisah?</li>
+        <li>Operasi 24 jam dengan tiga shift sejak pilot?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="foot"><span>Lembar Transport · Product Requirements Document v1.0 · Draft untuk review · Oktober 2026</span><span>Dokumen lengkap: <code>docs/PRD-Lembar-Transport.md</code> · PDF dan halaman PNG di <code>docs/</code></span></div>
+</div>
+</body>
+</html>

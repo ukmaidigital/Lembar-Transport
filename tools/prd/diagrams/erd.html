@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>ERD — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+</head>
+<body data-width="1800" data-scale="2">
+<header class="fig">
+  <h1>Entity Relationship Diagram<small>Lima klaster tabel MySQL: identitas dan driver, geografi dan tarif, pesanan dan dispatch, keuangan, serta platform. Garis = relasi utama (ujung bercabang = sisi "banyak"); relasi lain ditulis sebagai FK → tabel di dalam kotak.</small></h1>
+  <span class="tag">Gambar 10 · PRD v1.0</span>
+</header>
+<svg class="diagram" id="svg" width="1736" height="880" viewBox="0 0 1736 880" role="img" aria-label="ERD Lembar Transport: tabel users, drivers, vehicles, dokumen, zona, lokasi, tarif, orders beserta riwayat status, tawaran dispatch, rating, pembayaran, refund, ledger, top-up, payout, notifikasi, audit log, pengaturan, dan OTP."></svg>
+<footer class="fig"><span>Lembar Transport · PRD v1.0 · Bab 13 Model Data</span><span>PK = primary key · FK = foreign key · (F2) = tabel Fase 2 · kolom sensitif dienkripsi: nik, document_number, account_number</span></footer>
+<script src="_lib.js"></script>
+<script>
+const d = Diagram(document.getElementById('svg'));
+const svg = document.getElementById('svg');
+// Crow's-foot markers (shared stroke color)
+const defs = svg.querySelector('defs');
+const mk = (id, path) => { const m = svgEl('marker', { id, markerWidth: 16, markerHeight: 16, refX: 15, refY: 8, orient: 'auto', markerUnits: 'userSpaceOnUse' }, defs); svgEl('path', { d: path, fill: 'none', stroke: '#475569', 'stroke-width': 1.5 }, m); };
+mk('many', 'M1,8 L15,2 M1,8 L15,14 M1,8 L15,8');
+mk('one', 'M9,2 L9,14 M1,8 L15,8');
+const oneStart = svgEl('marker', { id: 'one-start', markerWidth: 16, markerHeight: 16, refX: 1, refY: 8, orient: 'auto-start-reverse', markerUnits: 'userSpaceOnUse' }, defs);
+svgEl('path', { d: 'M7,2 L7,14 M1,8 L15,8', fill: 'none', stroke: '#475569', 'stroke-width': 1.5 }, oneStart);
+
+const E = (id, x, y, w, fields, tone = 'plain', title) => {
+  const h = 30 + fields.length * 15 + 8;
+  d.box({ id, x, y, w, h, tone, title: title || id, lines: fields, align: 'left', titleSize: 12.5, lineSize: 10.5, pad: 10 });
+  return { x, y, w, h };
+};
+const rel = (o) => {
+  const p = d.edge(Object.assign({ color: '#475569', width: 1.4, arrow: false }, o));
+  p.setAttribute('marker-end', o.one2one ? 'url(#one)' : 'url(#many)');
+  p.setAttribute('marker-start', 'url(#one-start)');
+  return p;
+};
+
+// ---- Cluster A: identitas & driver
+d.group({ x: 14, y: 10, w: 566, h: 476, title: 'Identitas & driver', tone: 'system' });
+E('users', 30, 44, 170, ['id  PK', 'name · phone (unik)', 'email · password', 'role: customer|driver|admin', 'locale · status', 'two_factor_secret (enkripsi)']);
+E('drivers', 220, 44, 170, ['id  PK', 'user_id  FK → users (unik)', 'partner_organization_id  FK', 'status (draft…suspended)', 'nik (enkripsi) · address', 'rating_avg · trips_completed', 'is_online · last_seen_at', 'balance (rupiah)', 'verified_at · verified_by FK']);
+E('partner_organizations', 410, 44, 160, ['id  PK', 'name · type', 'legal_number', 'contact_phone', 'is_active']);
+E('driver_bank_accounts', 30, 220, 170, ['id  PK', 'driver_id  FK → drivers', 'bank_code', 'account_number (enkripsi)', 'account_name · verified_at']);
+E('driver_documents', 220, 240, 170, ['id  PK', 'driver_id  FK → drivers', 'vehicle_id  FK → vehicles', 'type (ktp|sim|stnk|skck|…)', 'file_path · file_hash', 'document_number (enkripsi)', 'expires_at · status', 'reviewed_by FK · version']);
+E('vehicles', 410, 200, 160, ['id  PK', 'driver_id  FK → drivers', 'vehicle_class_id  FK', 'plate_number (unik)', 'brand · model · year', 'seats · luggage_capacity', 'has_child_seat · roof_rack', 'stnk_expires_at · status']);
+E('driver_availability', 30, 350, 170, ['id  PK', 'driver_id  FK → drivers', 'date · is_blocked', 'unik (driver_id, date)']);
+E('vehicle_classes', 410, 376, 160, ['id  PK', 'code · name_id · name_en', 'max_passengers', 'max_luggage · sort_order']);
+
+// ---- Cluster B: geografi & tarif
+d.group({ x: 14, y: 506, w: 566, h: 356, title: 'Geografi & tarif', tone: 'system' });
+E('zones', 30, 540, 170, ['id  PK', 'code (Z1…Z8) · name', 'polygon JSON · is_active']);
+E('locations', 220, 540, 170, ['id  PK', 'zone_id  FK → zones', 'parent_id  FK → locations', 'type (port|meeting_point|poi…)', 'name_id · name_en · aliases', 'lat · lng · duration_min_est', 'photo_path · instructions']);
+E('ferry_routes', 410, 540, 160, ['id  PK', 'name · operator', 'crossing_min_min/max', 'schedule_timezone', 'is_active']);
+E('tariffs', 30, 668, 170, ['id  PK', 'zone_id  FK → zones', 'vehicle_class_id  FK', 'service_type', 'base_price', 'valid_from · valid_to']);
+E('surcharges', 220, 690, 170, ['id  PK', 'code (night|holiday|waiting…)', 'calc_type · amount', 'vehicle_class_id  FK', 'applies_from · applies_to']);
+E('holiday_dates', 410, 690, 160, ['id  PK', 'date · name', 'surcharge_id  FK']);
+
+// ---- Cluster C: pesanan & dispatch
+d.group({ x: 600, y: 10, w: 566, h: 852, title: 'Pesanan & dispatch', tone: 'system' });
+E('orders', 640, 60, 220, ['id  PK · code (unik)', 'customer_id  FK → users', 'guest_name · guest_phone · locale', 'channel · service_type', 'status · payment_status', 'payment_method · needs_attention', 'origin_location_id  FK', 'meeting_point_id  FK → locations', 'destination_location_id  FK', 'zone_id  FK · vehicle_class_id  FK', 'ferry_route_id  FK → ferry_routes', 'pickup_at · ferry_departure_at', 'ferry_eta_min/max_at · docked_at', 'passengers · luggage · child_seats', 'price_breakdown JSON · total', 'commission_rate · commission_amount', 'driver_id  FK · vehicle_id  FK', 'assigned_by FK · timestamp per status', 'cancelled_by_type · cancellation_fee', 'quote_token · idempotency_key'], 'data');
+E('order_status_histories', 920, 44, 220, ['id  PK', 'order_id  FK → orders', 'from_status · to_status', 'actor_type · actor_id', 'reason · metadata JSON', 'client_timestamp · created_at']);
+E('dispatch_offers', 920, 196, 220, ['id  PK', 'order_id  FK → orders', 'driver_id  FK → drivers', 'wave · score', 'offered_at · expires_at', 'response · responded_at']);
+E('ratings', 920, 348, 220, ['id  PK', 'order_id  FK → orders (unik)', 'driver_id  FK → drivers', 'customer_id  FK → users', 'score (1–5) · comment', 'is_published · moderated_by']);
+E('order_stops', 640, 470, 220, ['id  PK', 'order_id  FK → orders', 'sequence · location_id FK', 'address_text · lat · lng', 'planned_wait_min'], 'plain', 'order_stops (F2)');
+E('trip_locations', 920, 500, 220, ['id  PK', 'order_id  FK → orders', 'driver_id  FK → drivers', 'lat · lng · speed', 'recorded_at'], 'plain', 'trip_locations (F2)');
+E('otp_codes', 640, 640, 220, ['id  PK', 'phone · purpose', 'code_hash · expires_at', 'attempts · consumed_at']);
+E('promo_codes', 920, 640, 220, ['id  PK', 'code · discount_type · value', 'quota · valid_from · valid_to', 'promo_redemptions (per order)'], 'plain', 'promo_codes (F2)');
+
+// ---- Cluster D: keuangan
+d.group({ x: 1186, y: 10, w: 536, h: 476, title: 'Keuangan', tone: 'system' });
+E('payments', 1206, 44, 220, ['id  PK', 'order_id  FK → orders', 'method · provider', 'amount · status', 'external_id · snap_token', 'proof_path · paid_at', 'confirmed_by FK · payload JSON']);
+E('refunds', 1480, 44, 226, ['id  PK', 'order_id  FK → orders', 'payment_id  FK → payments', 'amount · method · status', 'reference · reason', 'processed_by FK · processed_at']);
+E('ledger_entries', 1206, 230, 220, ['id  PK', 'driver_id  FK → drivers', 'order_id  FK → orders', 'type (trip_earning|commission|…)', 'amount (bertanda)', 'balance_after', 'reference_type/id · note', 'created_by FK · created_at']);
+E('top_up_requests', 1480, 230, 226, ['id  PK', 'driver_id  FK → drivers', 'amount · proof_path', 'status · reviewed_by FK', 'ledger_entry_id  FK → ledger_entries']);
+E('payouts', 1480, 364, 226, ['id  PK', 'driver_id  FK → drivers', 'period_start · period_end', 'amount · status · reference', 'bank_account_snapshot JSON', 'processed_by FK · paid_at']);
+
+// ---- Cluster E: platform
+d.group({ x: 1186, y: 506, w: 536, h: 356, title: 'Platform', tone: 'system' });
+E('notifications', 1206, 540, 220, ['id  PK', 'user_id  FK → users', 'recipient · channel', 'template_key · locale', 'payload JSON · status', 'provider_message_id · cost', 'sent_at']);
+E('audit_logs', 1480, 540, 226, ['id  PK', 'actor_id  FK → users', 'action', 'auditable_type · auditable_id', 'old_values · new_values JSON', 'ip · user_agent · created_at']);
+E('settings', 1206, 700, 220, ['key  PK', 'value JSON', 'updated_by FK · updated_at']);
+E('roles_permissions', 1480, 700, 226, ['roles · permissions', 'model_has_roles', 'role_has_permissions', '(spatie/laravel-permission)'], 'plain', 'roles & permissions');
+
+// ---- Relations within clusters
+rel({ from: 'users', to: 'drivers', fromSide: 'r', toSide: 'l', fromT: 0.3, toT: 0.2, one2one: true });
+rel({ from: 'partner_organizations', to: 'drivers', fromSide: 'l', toSide: 'r', fromT: 0.3, toT: 0.3 });
+rel({ from: 'drivers', to: 'driver_documents', fromSide: 'b', toSide: 't', fromT: 0.5, toT: 0.5 });
+rel({ from: 'drivers', to: 'vehicles', fromSide: 'r', toSide: 'l', fromT: 0.85, toT: 0.2, midX: 400 });
+rel({ from: 'vehicles', to: 'driver_documents', fromSide: 'l', toSide: 'r', fromT: 0.7, toT: 0.3, midX: 400 });
+rel({ from: 'vehicle_classes', to: 'vehicles', fromSide: 't', toSide: 'b', fromT: 0.5, toT: 0.5 });
+rel({ from: 'drivers', to: 'driver_bank_accounts', fromSide: 'l', toSide: 'r', fromT: 0.7, toT: 0.3, midX: 210 });
+rel({ from: 'drivers', to: 'driver_availability', fromSide: 'l', toSide: 'r', fromT: 0.9, toT: 0.5, midX: 210 });
+rel({ from: 'zones', to: 'locations', fromSide: 'r', toSide: 'l', fromT: 0.4, toT: 0.2 });
+rel({ from: 'zones', to: 'tariffs', fromSide: 'b', toSide: 't', fromT: 0.5, toT: 0.5 });
+rel({ from: 'surcharges', to: 'holiday_dates', fromSide: 'r', toSide: 'l', fromT: 0.3, toT: 0.5 });
+rel({ from: 'orders', to: 'order_status_histories', fromSide: 'r', toSide: 'l', fromT: 0.08, toT: 0.5, midX: 890 });
+rel({ from: 'orders', to: 'dispatch_offers', fromSide: 'r', toSide: 'l', fromT: 0.3, toT: 0.5, midX: 890 });
+rel({ from: 'orders', to: 'ratings', fromSide: 'r', toSide: 'l', fromT: 0.6, toT: 0.5, midX: 890, one2one: true });
+rel({ from: 'orders', to: 'trip_locations', fromSide: 'r', toSide: 'l', fromT: 0.9, toT: 0.5, midX: 890 });
+rel({ from: 'orders', to: 'order_stops', fromSide: 'b', toSide: 't', fromT: 0.5, toT: 0.5 });
+rel({ from: 'payments', to: 'refunds', fromSide: 'r', toSide: 'l', fromT: 0.3, toT: 0.3 });
+rel({ from: 'ledger_entries', to: 'top_up_requests', fromSide: 'r', toSide: 'l', fromT: 0.5, toT: 0.5, one2one: true });
+
+// ---- Cross-cluster relations (selected)
+rel({ from: 'drivers', to: 'orders', fromSide: 'r', toSide: 'l', fromT: 0.55, toT: 0.5, via: [{ x: 590, y: d.anchor('drivers', 'r', 0.55).y }, { x: 590, y: 240 }, { x: 620, y: 240 }, { x: 620, y: d.anchor('orders', 'l', 0.5).y }] });
+rel({ from: 'locations', to: 'orders', fromSide: 'r', toSide: 'l', fromT: 0.5, toT: 0.9, via: [{ x: 590, y: d.anchor('locations', 'r', 0.5).y }, { x: 590, y: d.anchor('orders', 'l', 0.9).y }] });
+rel({ from: 'orders', to: 'payments', fromSide: 'r', toSide: 'l', fromT: 0.18, toT: 0.5, via: [{ x: 890, y: d.anchor('orders', 'r', 0.18).y }, { x: 890, y: 30 }, { x: 1176, y: 30 }, { x: 1176, y: d.anchor('payments', 'l', 0.5).y }] });
+rel({ from: 'orders', to: 'ledger_entries', fromSide: 'r', toSide: 'l', fromT: 0.75, toT: 0.5, via: [{ x: 1176, y: d.anchor('orders', 'r', 0.75).y }, { x: 1176, y: d.anchor('ledger_entries', 'l', 0.5).y }] });
+
+d.text(1186, 876, 'Relasi lain (users→orders, vehicle_classes→orders/tariffs, drivers→ledger/payout/top-up, users→notifications/audit_logs) mengikuti kolom FK di dalam kotak.', { size: 10.5, color: '#64748b', anchor: 'end' });
+</script>
+</body>
+</html>

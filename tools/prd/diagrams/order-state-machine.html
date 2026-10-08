@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>State machine pesanan — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+</head>
+<body data-width="1600" data-scale="2">
+<header class="fig">
+  <h1>State machine status pesanan<small>Jalur utama dari pembuatan pesanan sampai selesai, transisi balik saat driver menarik diri, status terminal (kedaluwarsa, dibatalkan, tidak hadir), timer sistem, dan jalur <code>payment_status</code> yang berjalan terpisah.</small></h1>
+  <span class="tag">Gambar 4 · PRD v1.0</span>
+</header>
+<svg class="diagram" id="svg" width="1536" height="900" viewBox="0 0 1536 900" role="img" aria-label="State machine pesanan: pending_payment, confirmed, dispatching, assigned, en_route, arrived, on_trip, completed; status terminal expired, cancelled, no_show; jalur payment_status unpaid, pending_review, paid, refunded, partially_paid."></svg>
+<footer class="fig"><span>Lembar Transport · PRD v1.0 · Bab 6.7 dan Lampiran C</span><span>Warna panah = aktor pemicu · label = pemicu/syarat · Timer = tindakan penjadwal</span></footer>
+<script src="_lib.js"></script>
+<script>
+const d = Diagram(document.getElementById('svg'));
+const C = { customer: '#2a78d6', driver: '#eb6834', admin: '#1baf7a', system: '#64748b' };
+
+// Main row: 8 states
+const states = [
+  ['s1', 'pending_payment', 'Menunggu Pembayaran', 'warning'],
+  ['s2', 'confirmed', 'Terkonfirmasi', 'system'],
+  ['s3', 'dispatching', 'Mencari Driver', 'system'],
+  ['s4', 'assigned', 'Driver Ditugaskan', 'driver'],
+  ['s5', 'en_route', 'Driver Menuju Pelabuhan', 'driver'],
+  ['s6', 'arrived', 'Driver Tiba di Titik Temu', 'driver'],
+  ['s7', 'on_trip', 'Dalam Perjalanan', 'driver'],
+  ['s8', 'completed', 'Selesai', 'good'],
+];
+const X0 = 14, W = 150, GAP = 44, Y = 250, H = 84;
+states.forEach(([id, code, label, tone], i) => {
+  d.box({ id, x: X0 + i * (W + GAP), y: Y, w: W, h: H, tone, title: code, lines: [label], titleSize: 13.5, lineSize: 11.5 });
+});
+d.text(14, 236, 'JALUR UTAMA', { size: 11, weight: 700, color: '#64748b', spacing: '0.08em' });
+
+// Start node
+d.box({ id: 'start', x: 90, y: 150, w: 210, h: 40, tone: 'customer', shape: 'pill', title: 'Pesanan dibuat', lines: [], titleSize: 13 });
+d.text(195, 138, 'Customer (web/QR) atau Ops (pesanan manual)', { size: 11, color: '#475569', anchor: 'middle' });
+d.edge({ from: 'start', to: 's1', fromSide: 'b', toSide: 't', fromT: 0.25, toT: 0.85, label: 'non-tunai', color: C.customer, at: 0.5, labelDy: 4 });
+d.edge({ from: 'start', to: 's2', fromSide: 'b', toSide: 't', fromT: 0.8, toT: 0.3, label: 'tunai', color: C.customer, at: 0.5, labelDy: 4 });
+
+// Happy path edges; labels sit below the box band (y ≈ 352) so they never cover captions
+const BELOW = 60;
+d.edge({ from: 's1', to: 's2', label: 'paid: webhook / Finance', color: C.system, labelDy: BELOW });
+d.edge({ from: 's2', to: 's3', label: 'penjadwal: segera / T-48 jam', color: C.system, labelDy: BELOW });
+d.edge({ from: 's3', to: 's4', label: 'driver terima / Ops assign', color: C.driver, labelDy: BELOW });
+d.edge({ from: 's4', to: 's5', label: 'hari H: berangkat', color: C.driver, labelDy: BELOW });
+d.edge({ from: 's5', to: 's6', label: 'tiba di titik temu', color: C.driver, labelDy: BELOW });
+d.edge({ from: 's6', to: 's7', label: 'penumpang naik', color: C.driver, labelDy: BELOW });
+d.edge({ from: 's7', to: 's8', label: 'selesai · tunai dicatat', color: C.driver, labelDy: BELOW });
+d.text(1350, 232, 'Timer: auto-complete 6 jam setelah on_trip', { size: 11, color: '#475569', anchor: 'middle' });
+
+// Dispatch self-loop (waves)
+d.edge({ start: { x: 480, y: 250 }, end: { x: 420, y: 250 }, fromSide: 't', toSide: 't', via: [{ x: 480, y: 196 }, { x: 420, y: 196 }], color: C.system, label: 'Timer: gelombang berikutnya 120–180 dtk', label2: 'setelah 3 gelombang → needs_attention + Ops', at: 0.5, labelDy: -22 });
+
+// Withdraw / unassign arc back to dispatching
+d.edge({ from: 's4', to: 's3', fromSide: 't', toSide: 't', fromT: 0.35, toT: 0.85, midY: 110, color: C.driver, label: 'driver menarik diri · Ops unassign', label2: '→ dispatch ulang prioritas tinggi', at: 0.5, labelDy: -22 });
+
+// Terminal: expired (under pending_payment, offset so the cancel arrow passes left of it)
+d.box({ id: 'expired', x: 34, y: 440, w: 110, h: 64, tone: 'critical', title: 'expired', lines: ['Kedaluwarsa'], titleSize: 13, lineSize: 11 });
+d.edge({ from: 's1', to: 'expired', fromSide: 'b', toSide: 't', fromT: 0.5, toT: 0.5, color: C.system, label: 'Timer: 2 jam / T-6 jam', at: 0.72, labelDy: 4 });
+
+// Terminal: no_show
+d.box({ id: 'noshow', x: 1000, y: 440, w: 150, h: 64, tone: 'critical', title: 'no_show', lines: ['Penumpang Tidak Hadir'], titleSize: 13, lineSize: 11 });
+d.edge({ from: 's6', to: 'noshow', fromSide: 'b', toSide: 't', fromT: 0.6, toT: 0.5, color: C.admin, label: 'tunggu gratis + 30 mnt, ≥ 3 kontak', label2: 'driver ajukan → Ops konfirmasi', at: 0.62, labelDy: -2 });
+
+// Terminal: cancelled bar
+d.box({ id: 'cancelled', x: 208, y: 560, w: 732, h: 72, tone: 'critical', title: 'cancelled — Dibatalkan', lines: ['Customer sesuai tier (≥ 24 jam gratis · 6–24 jam biaya 50 % · < 6 jam atau setelah en_route biaya 100 %)', 'Ops dengan alasan · Sistem saat pelayaran dibatalkan (refund 100 %)'], titleSize: 13, lineSize: 11 });
+['s2', 's3', 's4', 's5'].forEach((id) => {
+  const b = d.anchor(id, 'b', 0.5);
+  d.edge({ start: b, end: { x: b.x, y: 560 }, fromSide: 'b', toSide: 't', color: C.customer, dashed: true });
+});
+d.edge({ start: { x: 22, y: 334 }, end: { x: 240, y: 560 }, fromSide: 'b', toSide: 't', via: [{ x: 22, y: 530 }, { x: 240, y: 530 }], color: C.customer, dashed: true, label: 'tanpa biaya', at: 0.62, labelDy: -6 });
+d.text(574, 652, 'Panah putus-putus biru: pembatalan oleh customer; Ops dan sistem memakai transisi yang sama dengan alasan tercatat', { size: 11, color: '#475569', anchor: 'middle' });
+
+// payment_status lane (two rows)
+d.lane({ x: 14, y: 690, w: 1508, h: 160, label: 'payment_status\n(jalur terpisah)', tone: 'system', labelWidth: 150 });
+d.box({ id: 'p1', x: 200, y: 712, w: 170, h: 44, tone: 'plain', shape: 'pill', title: 'unpaid', titleSize: 12.5 });
+d.box({ id: 'p2', x: 440, y: 712, w: 190, h: 44, tone: 'plain', shape: 'pill', title: 'pending_review', titleSize: 12.5 });
+d.box({ id: 'p3', x: 760, y: 712, w: 170, h: 44, tone: 'good', shape: 'pill', title: 'paid', titleSize: 12.5 });
+d.box({ id: 'p4', x: 1060, y: 712, w: 170, h: 44, tone: 'plain', shape: 'pill', title: 'refunded', titleSize: 12.5 });
+d.box({ id: 'p5', x: 440, y: 786, w: 240, h: 44, tone: 'plain', shape: 'pill', title: 'partially_paid (DP, Fase 2)', titleSize: 12.5 });
+d.edge({ from: 'p1', to: 'p2', color: C.customer, label: 'bukti diunggah', labelDy: -10 });
+d.edge({ from: 'p2', to: 'p3', color: C.admin, label: 'Finance konfirmasi · webhook settlement', labelDy: -10 });
+d.edge({ from: 'p3', to: 'p4', color: C.admin, label: 'refund diproses', labelDy: -10 });
+d.edge({ from: 'p1', to: 'p5', fromSide: 'b', toSide: 'l', fromT: 0.5, toT: 0.5, color: C.customer, label: 'DP dibayar', at: 0.75, labelDy: 16 });
+d.edge({ from: 'p5', to: 'p3', fromSide: 'r', toSide: 'b', fromT: 0.5, toT: 0.5, color: C.driver, label: 'sisa tunai dicatat saat selesai', at: 0.5, labelDy: 16 });
+d.text(960, 800, 'Pesanan tunai: unpaid → paid saat completed (tanpa pending_review).', { size: 11, color: '#475569' });
+d.text(960, 818, 'Bukti ditolak: pending_review → unpaid dengan alasan tercatat.', { size: 11, color: '#475569' });
+
+// Legend
+d.legend({ x: 1150, y: 110, columns: 1, colWidth: 170, title: 'AKTOR PEMICU (warna panah)', items: [
+  { line: C.customer, label: 'Customer' },
+  { line: C.driver, label: 'Driver' },
+  { line: C.admin, label: 'Admin (Ops / Finance)' },
+  { line: C.system, label: 'Sistem / penjadwal' },
+]});
+d.legend({ x: 1330, y: 110, columns: 1, colWidth: 170, title: 'JENIS STATUS', items: [
+  { tone: 'warning', label: 'Menunggu tindakan customer' },
+  { tone: 'driver', label: 'Dikendalikan driver' },
+  { tone: 'good', label: 'Terminal sukses' },
+  { tone: 'critical', label: 'Terminal gagal/batal' },
+]});
+</script>
+</body>
+</html>

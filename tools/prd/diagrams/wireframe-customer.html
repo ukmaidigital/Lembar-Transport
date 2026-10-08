@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Wireframe customer — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+<link rel="stylesheet" href="_wire.css">
+</head>
+<body data-width="1900" data-scale="2">
+<header class="fig">
+  <h1>Wireframe antarmuka customer (mobile-first)<small>Lima layar inti: landing dan pencarian, hasil quote per kelas, formulir dengan data feri dan OTP, pembayaran, serta tiket/status dengan kartu driver dan tombol "Kapal sudah sandar". Low-fidelity: tata letak dan isi, bukan visual akhir.</small></h1>
+  <span class="tag">Gambar 6 · PRD v1.0</span>
+</header>
+<div class="frames">
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>09:41</span><span>LTE ▮▮▮ ▭</span></div>
+      <div class="appbar"><span class="brand"><i></i>Lembar Transport</span><span class="lang"><b>ID</b> · EN</span></div>
+      <div class="body">
+        <div class="h">Pesan mobil dari Pelabuhan Lembar dengan harga pasti</div>
+        <div class="sub">Driver terverifikasi · titik temu jelas · tanpa tawar-menawar</div>
+        <div class="card">
+          <div class="field"><label>Tujuan</label><div class="input"><span>Senggigi (Z3)</span><span>▾</span></div></div>
+          <div class="row">
+            <div class="field"><label>Tanggal tiba</label><div class="input"><span>Sel, 14 Okt</span><span>▾</span></div></div>
+            <div class="field"><label>Perkiraan jam</label><div class="input"><span>05.30</span><span>WITA</span></div></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Penumpang</label><div class="input"><span>4</span><span>− +</span></div></div>
+            <div class="field"><label>Bagasi</label><div class="input"><span>3</span><span>− +</span></div></div>
+          </div>
+          <div class="btn primary">Lihat harga</div>
+        </div>
+        <div class="sub" style="font-weight:600;color:var(--ink)">Harga populer (MPV Standar)</div>
+        <div class="chips"><span class="chip">Mataram · Rp 225.000</span><span class="chip">Senggigi · Rp 300.000</span><span class="chip">Bandara · Rp 300.000</span><span class="chip">Bangsal/Gili · Rp 400.000</span></div>
+        <div class="row">
+          <div class="card muted"><b style="color:var(--ink)">1. Pesan</b><span class="note">Pilih tujuan dan data kapal</span></div>
+          <div class="card muted"><b style="color:var(--ink)">2. Tiba</b><span class="note">Driver menunggu di titik temu</span></div>
+          <div class="card muted"><b style="color:var(--ink)">3. Jalan</b><span class="note">Bayar tunai atau non-tunai</span></div>
+        </div>
+      </div>
+      <div class="sticky"><span class="note">Beranda · Harga · Lacak pesanan · Bantuan</span></div>
+    </div>
+    <div class="caption"><b>1 · Landing dan pencarian</b>Kartu pencarian di atas lipatan; autocomplete tujuan (POI/zona); tanggal default hari ini; cuplikan harga membangun kepercayaan. Rute <code>/</code> (SSR).</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>09:42</span><span>LTE ▮▮▮ ▭</span></div>
+      <div class="appbar"><span class="brand">‹ Pilih kendaraan</span><span class="lang"><b>ID</b> · EN</span></div>
+      <div class="body">
+        <div class="sub">Lembar → Senggigi · Sel, 14 Okt · tiba ± 05.30 WITA · 4 penumpang · 3 bagasi</div>
+        <div class="infobox">Harga dikunci 30 menit · sisa 29:12</div>
+        <div class="card sel">
+          <div class="kv"><span><b>MPV Standar</b> · Avanza/Xenia</span><span class="price">Rp 350.000</span></div>
+          <div class="chips"><span class="chip">4 penumpang</span><span class="chip">3 bagasi</span><span class="chip warn">+ Rp 50.000 malam</span></div>
+          <div class="kv"><span class="note">Tarif dasar Rp 300.000 · ± 60–80 menit</span><span class="note">Rincian ▾</span></div>
+          <div class="btn primary">Pilih</div>
+        </div>
+        <div class="card">
+          <div class="kv"><span><b>MPV Premium</b> · Innova</span><span class="price">Rp 450.000</span></div>
+          <div class="chips"><span class="chip">5 penumpang</span><span class="chip">4 bagasi</span><span class="chip">roof rack</span></div>
+          <div class="btn ghost">Pilih</div>
+        </div>
+        <div class="card">
+          <div class="kv"><span><b>Minibus 12</b> · Hiace</span><span class="price">Rp 650.000</span></div>
+          <div class="chips"><span class="chip">12 penumpang</span><span class="chip">12 bagasi</span></div>
+          <div class="btn ghost">Pilih</div>
+        </div>
+        <div class="note">Harga termasuk BBM, driver, dan pas pelabuhan. Tunggu gratis 60 menit sejak kapal sandar.</div>
+      </div>
+    </div>
+    <div class="caption"><b>2 · Hasil quote per kelas</b>Kapasitas dan surcharge terlihat sebelum memilih; kelas yang tidak muat dinonaktifkan dengan penjelasan; hitung mundur kunci harga. Rute <code>/pesan</code> langkah 2.</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>09:44</span><span>LTE ▮▮▮ ▭</span></div>
+      <div class="appbar"><span class="brand">‹ Data feri & kontak</span><span class="lang"><b>ID</b> · EN</span></div>
+      <div class="body">
+        <div class="steps"><span class="done">Tujuan</span><span class="done">Kendaraan</span><span class="cur">Feri</span><span>Kontak</span><span>Bayar</span></div>
+        <div class="field"><label>Rute dan operator</label><div class="input"><span>Padangbai → Lembar · ASDP</span><span>▾</span></div></div>
+        <div class="row">
+          <div class="field"><label>Jam berangkat</label><div class="input"><span>23.00</span><span>WITA</span></div></div>
+          <div class="field"><label>Tanggal tiba</label><div class="input"><span>Sel, 14 Okt</span><span>▾</span></div></div>
+        </div>
+        <div class="warnbox">Kapal malam tiba keesokan hari. Estimasi sandar <b>04.30–06.00 WITA</b>. Tunggu gratis 60 menit dihitung sejak kapal sandar.</div>
+        <div class="field"><label>Nama</label><div class="input"><span>Rina Puspita</span><span></span></div></div>
+        <div class="field"><label>Nomor WhatsApp</label><div class="input"><span>+62 812 3456 789</span><span>✓</span></div></div>
+        <div class="field"><label>Email (opsional)</label><div class="input"><span>rina@example.com</span><span></span></div></div>
+        <div class="field"><label>Kode OTP (dikirim ke WhatsApp)</label><div class="input"><span>4 8 2 _ _ _</span><span>Kirim ulang 00:42</span></div></div>
+        <div class="chips"><span class="chip">Child seat (atas permintaan)</span><span class="chip">Roof rack</span></div>
+      </div>
+      <div class="sticky"><div><div class="note">Total</div><div class="price">Rp 350.000</div></div><div class="btn primary" style="flex:1">Lanjut ke pembayaran</div></div>
+    </div>
+    <div class="caption"><b>3 · Formulir: data feri, kontak, OTP</b>Tanggal tiba dikonfirmasi eksplisit untuk kapal malam; estimasi sandar sebagai rentang; OTP inline tanpa membuat akun; ringkasan harga menempel di bawah.</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>09:46</span><span>LTE ▮▮▮ ▭</span></div>
+      <div class="appbar"><span class="brand">‹ Pembayaran</span><span class="lang"><b>ID</b> · EN</span></div>
+      <div class="body">
+        <div class="steps"><span class="done">Tujuan</span><span class="done">Kendaraan</span><span class="done">Feri</span><span class="done">Kontak</span><span class="cur">Bayar</span></div>
+        <div class="card"><div class="radio"><i></i><div><b>Tunai ke driver</b><div class="note">Bayar Rp 350.000 saat tiba di tujuan</div></div></div></div>
+        <div class="card sel"><div class="radio"><i class="on"></i><div><b>Transfer bank / QRIS</b><div class="note">Unggah bukti, dikonfirmasi Finance</div></div></div>
+          <div class="hr"></div>
+          <div class="kv"><span>BCA 123 456 7890</span><span>Salin</span></div>
+          <div class="kv"><span>a.n. PT Lembar Transport</span><span></span></div>
+          <div class="kv"><span>Jumlah</span><span>Rp 350.000</span></div>
+          <div class="kv"><span>Berita transfer</span><span>LT-261014-7K3Q</span></div>
+          <div class="img" style="height:64px">QRIS statis</div>
+          <div class="upload">Unggah bukti transfer<br>JPG / PNG / PDF ≤ 5 MB</div>
+        </div>
+        <div class="card"><div class="radio"><i></i><div><b>Kartu / e-wallet / VA</b> <span class="badge info">gateway</span><div class="note">GoPay, OVO, DANA, ShopeePay, Visa/Mastercard</div></div></div></div>
+        <div class="warnbox">Selesaikan pembayaran sebelum <b>01:58:20</b> (2 jam atau 6 jam sebelum penjemputan).</div>
+      </div>
+      <div class="sticky"><div class="btn primary" style="flex:1">Kirim bukti pembayaran</div></div>
+    </div>
+    <div class="caption"><b>4 · Pembayaran</b>Metode tunai, transfer/QRIS dengan bukti, dan gateway (bila aktif). Batas waktu terlihat; metode manual disembunyikan untuk pemesanan &lt; 8 jam sebelum penjemputan. Rute <code>/pesanan/[kode]/bayar</code>.</div>
+  </div>
+
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>04:35</span><span>LTE ▮▯▯ ▭</span></div>
+      <div class="appbar"><span class="brand">Tiket LT-261014-7K3Q</span><span class="badge good">Driver ditugaskan</span></div>
+      <div class="body">
+        <div class="kv"><span>Lembar → Senggigi</span><span>Sel, 14 Okt · ± 05.30 WITA</span></div>
+        <div class="timeline">
+          <div><i class="done"></i><span>Pesanan dibuat · Sen 13 Okt 09.46</span></div>
+          <div><i class="done"></i><span>Pembayaran dikonfirmasi · 10.20</span></div>
+          <div><i class="cur"></i><span><b>Driver ditugaskan</b> · Sen 13 Okt 11.05</span></div>
+          <div><i></i><span class="muted">Driver tiba di titik temu</span></div>
+          <div><i></i><span class="muted">Dalam perjalanan → Selesai</span></div>
+        </div>
+        <div class="card">
+          <div class="row" style="align-items:center"><div class="avatar" style="flex:none"></div><div style="flex:1"><b>Lalu Hadi</b> · ★ 4,9 (312 trip)<div class="note">Avanza putih · <b>DR 1234 AB</b> · MPV Standar</div></div></div>
+          <div class="row"><div class="btn ghost">WhatsApp</div><div class="btn ghost">Telepon</div></div>
+        </div>
+        <div class="card">
+          <div class="img" style="height:70px">Foto titik temu</div>
+          <div><b>Titik temu:</b> Pintu keluar Terminal Penumpang (Gate A), sebelah kanan loket informasi.</div>
+          <div class="kv"><span class="note">Driver membawa papan nama "RINA PUSPITA"</span><span class="note">Peta ›</span></div>
+        </div>
+        <div class="btn primary big">Kapal sudah sandar</div>
+        <div class="note" style="text-align:center">Tekan saat kapal merapat agar driver bersiap dan waktu tunggu gratis 60 menit dimulai.</div>
+      </div>
+      <div class="sticky"><span class="note">Batalkan pesanan · Ubah data feri · Bantuan</span></div>
+    </div>
+    <div class="caption"><b>5 · Tiket dan status</b>Halaman ringan (&lt; 200 KB) yang bisa dibuka dengan sinyal lemah; timeline, kartu driver, titik temu berfoto, dan satu aksi utama di hari H. Rute <code>/pesanan/[kode]</code>.</div>
+  </div>
+
+</div>
+<footer class="fig"><span>Lembar Transport · PRD v1.0 · Bab 10.4</span><span>Wireframe low-fidelity · teks contoh · tema terang</span></footer>
+</body>
+</html>

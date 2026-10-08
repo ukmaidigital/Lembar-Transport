@@ -1,0 +1,19 @@
+/* Shared look for every PRD diagram source (light theme, print-oriented). */
+:root {
+  --ink: #0f172a; --ink-2: #475569; --ink-3: #64748b; --hair: #e2e8f0; --line: #cbd5e1;
+  --bg: #ffffff; --panel: #f8fafc;
+  --customer: #2a78d6; --customer-bg: #e3effb; --customer-ink: #1c5cab;
+  --driver: #eb6834;   --driver-bg: #fdeae2;   --driver-ink: #b4421a;
+  --admin: #1baf7a;    --admin-bg: #dff5ec;    --admin-ink: #0f7a55;
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font-family: Inter, "Segoe UI", Arial, sans-serif; padding: 32px; -webkit-font-smoothing: antialiased; }
+header.fig { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin: 0 0 16px; }
+header.fig h1 { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+header.fig h1 small { display: block; font-size: 14px; font-weight: 500; color: var(--ink-2); margin-top: 4px; }
+header.fig .tag { font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+footer.fig { margin-top: 14px; font-size: 12px; color: var(--ink-3); display: flex; justify-content: space-between; gap: 16px; }
+svg.diagram { display: block; }
+svg.diagram text { font-family: Inter, "Segoe UI", Arial, sans-serif; }

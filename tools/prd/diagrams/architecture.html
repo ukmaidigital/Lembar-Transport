@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Arsitektur sistem — Lembar Transport</title>
+<link rel="stylesheet" href="_lib.css">
+</head>
+<body data-width="1600" data-scale="2">
+<header class="fig">
+  <h1>Arsitektur sistem Lembar Transport<small>Satu aplikasi Next.js dengan tiga area peran di atas satu Laravel REST API; data di MySQL, antrean dan cache di Redis, dokumen di penyimpanan objek; layanan eksternal untuk pembayaran, pesan, email, dan peta.</small></h1>
+  <span class="tag">Gambar 9 · PRD v1.0</span>
+</header>
+<svg class="diagram" id="svg" width="1536" height="1000" viewBox="0 0 1536 1000" role="img" aria-label="Diagram arsitektur: pengguna customer, driver, dan admin mengakses aplikasi Next.js melalui Cloudflare; Next.js memanggil Laravel API; Laravel memakai MySQL, Redis, dan penyimpanan objek, serta layanan eksternal Midtrans, WhatsApp/SMS, email, peta, dan Sentry."></svg>
+<footer class="fig"><span>Lembar Transport · Product Requirements Document v1.0 · Bab 12 Arsitektur Teknis</span><span>Panah = arah permintaan; label = protokol/isi; kotak putus-putus = layanan pihak ketiga</span></footer>
+<script src="_lib.js"></script>
+<script>
+const d = Diagram(document.getElementById('svg'));
+
+// --- Edge / hosting band
+d.group({ x: 440, y: 10, w: 1082, h: 46, tone: 'system', dashed: true });
+d.text(456, 38, 'Edge & hosting: Cloudflare (DNS · TLS · WAF · cache statis)  →  VPS/cloud region Jakarta, Docker Compose, Nginx reverse proxy, CI/CD GitHub Actions', { size: 12.5, weight: 600, color: '#334155' });
+
+// --- Users (left column)
+d.text(24, 96, 'PENGGUNA & PERANGKAT', { size: 11.5, weight: 700, color: '#64748b', spacing: '0.08em' });
+d.box({ id: 'u-cus', x: 24, y: 110, w: 300, h: 92, tone: 'customer', title: 'Customer', lines: ['Ponsel/desktop · browser · ID/EN', 'Tamu dengan OTP WhatsApp atau akun'] });
+d.box({ id: 'u-drv', x: 24, y: 236, w: 300, h: 92, tone: 'driver', title: 'Driver mitra', lines: ['Android kelas bawah–menengah', 'PWA terpasang · sinyal tidak stabil'] });
+d.box({ id: 'u-adm', x: 24, y: 362, w: 300, h: 92, tone: 'admin', title: 'Admin', lines: ['Ops · Verifier · Finance · Super Admin', 'Desktop ≥ 1280 px · 2FA TOTP · RBAC'] });
+
+// --- Next.js container
+d.group({ x: 440, y: 80, w: 372, h: 484, tone: 'system', title: 'Web app — Next.js (App Router, TypeScript, PWA)' });
+d.box({ id: 'nx-pub', x: 460, y: 118, w: 332, h: 86, tone: 'customer', title: 'Area publik & customer  /', lines: ['SSR untuk landing, harga, wizard pesan', 'Halaman tiket ringan (< 200 KB)'], titleSize: 13 });
+d.box({ id: 'nx-drv', x: 460, y: 222, w: 332, h: 86, tone: 'driver', title: 'Area driver  /driver  (PWA)', lines: ['Service worker · cache trip aktif', 'Antrean aksi offline di IndexedDB'], titleSize: 13 });
+d.box({ id: 'nx-adm', x: 460, y: 326, w: 332, h: 86, tone: 'admin', title: 'Area admin  /admin', lines: ['Dashboard, verifikasi, papan pesanan', 'Tarif, keuangan, laporan, audit'], titleSize: 13 });
+d.box({ id: 'nx-bff', x: 460, y: 430, w: 332, h: 110, tone: 'data', title: 'BFF route handlers  /api/auth/*', lines: ['Tukar OTP/kredensial → token Sanctum', 'Simpan token di cookie httpOnly', 'middleware.ts menjaga rute per peran', 'Klien API bertipe dari OpenAPI'], titleSize: 13 });
+
+// --- Laravel container
+d.group({ x: 932, y: 80, w: 352, h: 584, tone: 'system', title: 'Backend — Laravel REST API  /api/v1  (PHP ≥ 8.3)' });
+d.box({ id: 'lv-gw', x: 952, y: 118, w: 312, h: 58, tone: 'data', title: 'HTTP layer: Sanctum · Policies · Rate limit', lines: ['Amplop JSON · Idempotency-Key · X-Request-Id'], titleSize: 12.5, lineSize: 11.5 });
+const mods = [
+  ['Auth', 'OTP · 2FA · token'], ['Drivers', 'pendaftaran · verifikasi'],
+  ['Vehicles', 'kendaraan · kelas'], ['Pricing', 'zona · tarif · quote'],
+  ['Booking', 'pesanan · state machine'], ['Dispatch', 'kelayakan · gelombang'],
+  ['Payments', 'manual · gateway · refund'], ['Ledger', 'saldo · top-up · payout'],
+  ['Notifications', 'template ID/EN · fallback'], ['Reporting', 'laporan · ekspor'],
+];
+mods.forEach(([name, sub], i) => {
+  const col = i % 2, row = Math.floor(i / 2);
+  d.box({ id: 'm-' + name, x: 952 + col * 160, y: 194 + row * 62, w: 152, h: 52, tone: 'plain', title: name, lines: [sub], titleSize: 12.5, lineSize: 11 });
+});
+d.box({ id: 'lv-async', x: 952, y: 512, w: 312, h: 134, tone: 'data', title: 'Proses asinkron', lines: ['Horizon workers: queue dispatch (prioritas),', 'notifications, media, default', 'Scheduler: gelombang dispatch tiap menit,', 'kedaluwarsa pembayaran, pengingat, auto-complete,', 'cek dokumen, rekonsiliasi, payout, purge retensi'], align: 'left', titleSize: 13, lineSize: 11.5 });
+
+// --- Data stores (right column)
+d.text(1372, 96, 'PENYIMPANAN', { size: 11.5, weight: 700, color: '#64748b', spacing: '0.08em' });
+d.box({ id: 'db', x: 1372, y: 110, w: 150, h: 124, tone: 'data', shape: 'cylinder', title: 'MySQL 8', lines: ['Data transaksional', 'JSON price_breakdown', 'UTC · utf8mb4'], titleSize: 13, lineSize: 11.5 });
+d.box({ id: 'redis', x: 1372, y: 262, w: 150, h: 124, tone: 'data', shape: 'cylinder', title: 'Redis 7', lines: ['Queue Horizon', 'Cache quote/pengaturan', 'Lock dispatch · rate limit'], titleSize: 13, lineSize: 11.5 });
+d.box({ id: 's3', x: 1372, y: 414, w: 150, h: 124, tone: 'data', title: 'Object storage', lines: ['S3-compatible (MinIO)', 'Dokumen & bukti bayar', 'Bucket privat · enkripsi', 'Signed URL 5 menit'], titleSize: 13, lineSize: 11.5 });
+
+// --- External services (bottom band)
+const EY = 790;
+d.text(440, EY - 16, 'LAYANAN PIHAK KETIGA', { size: 11.5, weight: 700, color: '#64748b', spacing: '0.08em' });
+d.box({ id: 'x-map', x: 440, y: EY, w: 196, h: 96, tone: 'external', title: 'Peta', lines: ['Leaflet + OSM (Fase 1)', 'Google Maps Platform (Fase 2)', 'Pelacakan & deep link'], titleSize: 13, lineSize: 11.5 });
+d.box({ id: 'x-mid', x: 660, y: EY, w: 196, h: 96, tone: 'external', title: 'Midtrans Snap', lines: ['QRIS · VA · e-wallet · kartu', 'Refund · webhook settlement', 'Should Fase 1 / Fase 2'], titleSize: 13, lineSize: 11.5 });
+d.box({ id: 'x-wa', x: 880, y: EY, w: 196, h: 96, tone: 'external', title: 'WhatsApp / SMS', lines: ['OTP dan notifikasi', 'Click-to-chat (Fase 1)', 'WA Business API (Fase 2)'], titleSize: 13, lineSize: 11.5 });
+d.box({ id: 'x-mail', x: 1100, y: EY, w: 196, h: 96, tone: 'external', title: 'Email', lines: ['SMTP / Resend / SES', 'Konfirmasi, kuitansi', 'Fallback kanal'], titleSize: 13, lineSize: 11.5 });
+d.box({ id: 'x-obs', x: 1320, y: EY, w: 202, h: 96, tone: 'external', title: 'Observabilitas', lines: ['Sentry (API + web)', 'Uptime monitor', 'Peringatan ke grup WA ops'], titleSize: 13, lineSize: 11.5 });
+
+// --- Edges: users -> Next.js
+d.edge({ from: 'u-cus', to: 'nx-pub', label: 'HTTPS', label2: 'HTML (SSR) + JSON', color: '#2a78d6', labelDy: -12 });
+d.edge({ from: 'u-drv', to: 'nx-drv', label: 'HTTPS · PWA', label2: 'polling / SSE', color: '#eb6834', labelDy: -12 });
+d.edge({ from: 'u-adm', to: 'nx-adm', label: 'HTTPS', label2: 'sesi 8 jam · 2FA', color: '#1baf7a', labelDy: -12 });
+
+// Next.js -> Laravel (single main API path)
+d.edge({ from: 'nx-bff', to: 'lv-gw', fromSide: 'r', toSide: 'l', fromT: 0.3, toT: 0.5, label: 'REST JSON /api/v1', label2: 'Bearer token per peran', width: 2.5, color: '#0f172a', midX: 872, at: 0.5, labelDy: -12 });
+
+// Laravel -> stores
+d.edge({ from: 'lv-gw', to: 'db', fromSide: 'r', toSide: 'l', fromT: 0.5, toT: 0.5, label: 'SQL', color: '#475569', midX: 1328 });
+d.edge({ start: { x: 1284, y: 324 }, end: { x: 1372, y: 324 }, fromSide: 'r', toSide: 'l', label: 'queue · cache', label2: 'lock', color: '#475569', labelDy: -20 });
+d.edge({ start: { x: 1284, y: 476 }, end: { x: 1372, y: 476 }, fromSide: 'r', toSide: 'l', label: 'unggah ·', label2: 'signed URL', color: '#475569', labelDy: -20 });
+
+// Browser -> maps (direct from the client bundle)
+d.edge({ start: { x: 538, y: 564 }, end: { x: 538, y: EY }, fromSide: 'b', toSide: 't', label: 'tiles · geocode (browser)', color: '#94a3b8', dashed: true, at: 0.5 });
+
+// Laravel async -> external
+const ab = (t) => d.anchor('lv-async', 'b', t);
+d.edge({ start: ab(0.12), end: { x: 758, y: EY }, fromSide: 'b', toSide: 't', via: [{ x: ab(0.12).x, y: 690 }, { x: 758, y: 690 }], label: 'Snap API · refund', color: '#64748b', at: 0.5 });
+d.edge({ start: { x: 821, y: EY }, end: ab(0.28), fromSide: 't', toSide: 'b', via: [{ x: 821, y: 722 }, { x: ab(0.28).x, y: 722 }], label: 'webhook (signature)', color: '#64748b', dashed: true, at: 0.5, labelDy: 15 });
+d.edge({ start: ab(0.5), end: { x: 978, y: EY }, fromSide: 'b', toSide: 't', via: [{ x: ab(0.5).x, y: 712 }, { x: 978, y: 712 }], label: 'OTP · notifikasi', color: '#64748b', at: 0.22, labelDy: 4 });
+d.edge({ start: ab(0.72), end: { x: ab(0.72).x, y: EY }, fromSide: 'b', toSide: 't', label: 'SMTP', color: '#64748b', at: 0.5, labelDy: 4 });
+d.edge({ start: ab(0.9), end: { x: 1421, y: EY }, fromSide: 'b', toSide: 't', via: [{ x: ab(0.9).x, y: 742 }, { x: 1421, y: 742 }], label: 'error · trace', color: '#94a3b8', dashed: true, at: 0.6 });
+
+// Legend
+d.legend({ x: 24, y: 700, columns: 1, colWidth: 200, title: 'LEGENDA', items: [
+  { tone: 'customer', label: 'Komponen/alur customer' },
+  { tone: 'driver', label: 'Komponen/alur driver' },
+  { tone: 'admin', label: 'Komponen/alur admin' },
+  { tone: 'data', label: 'Komponen platform & penyimpanan' },
+  { tone: 'external', label: 'Layanan pihak ketiga (putus-putus)' },
+  { line: '#0f172a', label: 'Panah tebal = jalur utama API' },
+  { line: '#64748b', dashed: true, label: 'Putus-putus = asinkron / opsional' },
+]});
+</script>
+</body>
+</html>
