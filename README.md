@@ -32,6 +32,27 @@ npm --prefix web run e2e                                 # Playwright: alur cust
 
 Integrasi eksternal dijalankan dalam mode *stub* yang siap diganti: OTP/WhatsApp/email dicatat ke tabel `notification_logs` (driver `log`), gateway pembayaran di balik flag `payment.gateway_enabled`, berkas di disk privat dengan URL bertanda tangan (ganti `FILESYSTEM_DISK=s3` untuk produksi).
 
+## Menjalankan dengan MySQL 8 + Redis (Docker)
+
+Prasyarat tambahan: Docker Engine (daemon berjalan) dan Docker Compose v2+. API dan web tetap berjalan native; hanya database dan Redis yang di container (`deploy/docker-compose.dev.yml`).
+
+```bash
+scripts/dev.sh --mysql            # nyalakan MySQL 8.4 + Redis 7, tunggu sehat, migrate + seed, jalankan API/web
+scripts/dev.sh --mysql --reset    # buat ulang database
+# atau manual:
+docker compose -f deploy/docker-compose.dev.yml up -d
+```
+
+| Hal | Nilai |
+|---|---|
+| Koneksi | `127.0.0.1:3306`, database `lembar`, user `lembar`, kata sandi `secret` (root: `root`) |
+| Database lain | `lembar_test` (Pest), `lembar_e2e` (Playwright) — dibuat otomatis oleh `deploy/mysql-init/` saat volume pertama kali dibuat |
+| Redis | `127.0.0.1:6379` (cache, sesi, queue) |
+| CLI | `docker compose -f deploy/docker-compose.dev.yml exec mysql mysql -ulembar -psecret lembar` |
+| Reset total | `docker compose -f deploy/docker-compose.dev.yml down -v` |
+
+Untuk memakai MySQL secara permanen tanpa skrip, salin nilai `DB_*`/`REDIS_*` yang dikomentari di `api/.env.example` ke `api/.env`. Pengujian terhadap MySQL: `DB_CONNECTION=mysql DB_DATABASE=lembar_test DB_USERNAME=lembar DB_PASSWORD=secret php artisan test` dan `E2E_DB=mysql npm --prefix web run e2e`; CI juga menjalankan Pest di MySQL 8 (job `api-mysql`).
+
 ## Deploy (Docker Compose, MySQL 8 + Redis)
 
 ```bash

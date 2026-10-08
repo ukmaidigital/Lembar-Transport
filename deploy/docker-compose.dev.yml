@@ -1,0 +1,36 @@
+# Development services: MySQL 8.4 + Redis 7 for running the API natively against a real MySQL.
+# Usage: docker compose -f deploy/docker-compose.dev.yml up -d   (or scripts/dev.sh --mysql)
+# Databases: lembar (app), lembar_test (Pest), lembar_e2e (Playwright) — user lembar / secret.
+name: lembar-dev
+
+services:
+  mysql:
+    image: mysql:8.4
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone=+00:00
+    environment:
+      MYSQL_DATABASE: lembar
+      MYSQL_USER: lembar
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports: ["127.0.0.1:${MYSQL_PORT:-3306}:3306"]
+    volumes:
+      - mysql-dev-data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
+    volumes: [redis-dev-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  mysql-dev-data:
+  redis-dev-data:
