@@ -14,3 +14,6 @@ web/node_modules/
 web/public/sw.js
 web/public/sw.js.map
 web/public/swe-worker-*.js
+
+# Docker dev stack marker
+api/storage/.lembar-ready

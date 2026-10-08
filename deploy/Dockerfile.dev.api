@@ -1,0 +1,22 @@
+# Development image for the Laravel API (used by docker-compose.yml at the repo root).
+# Ubuntu 24.04 ships PHP 8.3 with every extension we need as packages, so nothing is compiled.
+# Source code is bind-mounted at /app; vendor/ lives in a named volume and is installed on first start.
+FROM ubuntu:24.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl git unzip tzdata \
+       php8.3-cli php8.3-mysql php8.3-sqlite3 php8.3-redis php8.3-intl php8.3-gd php8.3-zip \
+       php8.3-bcmath php8.3-mbstring php8.3-xml php8.3-curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+COPY deploy/php.dev.ini /etc/php/8.3/cli/conf.d/99-lembar-dev.ini
+COPY deploy/entrypoint.dev.api.sh /usr/local/bin/lembar-entrypoint
+RUN sed -i 's/\r$//' /usr/local/bin/lembar-entrypoint && chmod +x /usr/local/bin/lembar-entrypoint
+
+WORKDIR /app
+ENV COMPOSER_ALLOW_SUPERUSER=1 PHP_CLI_SERVER_WORKERS=4
+EXPOSE 8000
+ENTRYPOINT ["lembar-entrypoint"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000", "--no-reload"]

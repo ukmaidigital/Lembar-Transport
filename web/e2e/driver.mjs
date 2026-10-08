@@ -36,7 +36,7 @@ try {
   await page.goto(base + tripHref);
   await page.waitForSelector("text=Penumpang");
   await page.goto(base + tripHref + "/papan-nama");
-  await page.waitForSelector("text=Lembar Transport");
+  await page.waitForSelector("text=Kembali ke trip");
   await shot(page, "driver-nameboard");
 
   await page.goto(base + "/driver/jadwal");
@@ -57,6 +57,7 @@ try {
 
   // --- New applicant: registration wizard with document uploads → submitted
   const ctx2 = await browser.newContext({ locale: "id-ID", ...mobile });
+  ctx2.setDefaultTimeout(Number(process.env.E2E_TIMEOUT ?? 60000));
   const p2 = await ctx2.newPage();
   p2.on("pageerror", (e) => errors.push("pageerror(p2): " + e.message));
   const phone = "0813" + String(Date.now()).slice(-8);

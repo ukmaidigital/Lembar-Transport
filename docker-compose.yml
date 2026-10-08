@@ -1,0 +1,129 @@
+# Lembar Transport — full local stack in Docker (Windows/macOS/Linux, only Docker Desktop + Git needed).
+#   docker compose up -d --build        then open http://localhost:3000
+# Services: mysql (8.4), redis (7), api (Laravel, :8000), queue, scheduler, web (Next.js dev server, :3000).
+# Ports can be changed with env vars or a .env file next to this file: MYSQL_PORT, REDIS_PORT, API_PORT, WEB_PORT.
+name: lembar-transport
+
+x-api-env: &api-env
+  APP_ENV: local
+  APP_DEBUG: "true"
+  APP_URL: http://localhost:${API_PORT:-8000}
+  LEMBAR_WEB_URL: http://localhost:${WEB_PORT:-3000}
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: lembar
+  DB_USERNAME: lembar
+  DB_PASSWORD: secret
+  CACHE_STORE: redis
+  QUEUE_CONNECTION: redis
+  SESSION_DRIVER: redis
+  REDIS_HOST: redis
+  REDIS_CLIENT: phpredis
+  LOG_CHANNEL: stderr
+
+x-api-base: &api-base
+  build: { context: ., dockerfile: deploy/Dockerfile.dev.api }
+  image: lembar-transport-api-dev
+  environment: *api-env
+  volumes:
+    - ./api:/app
+    - api-vendor:/app/vendor
+  restart: unless-stopped
+
+services:
+  mysql:
+    image: mysql:8.4
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone=+00:00
+    environment:
+      MYSQL_DATABASE: lembar
+      MYSQL_USER: lembar
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports: ["127.0.0.1:${MYSQL_PORT:-3307}:3306"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./deploy/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    <<: *api-base
+    environment: { <<: *api-env, LEMBAR_SETUP: "1" }
+    ports: ["${API_PORT:-8000}:8000"]
+    depends_on:
+      mysql: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/up"]
+      interval: 5s
+      timeout: 5s
+      retries: 120
+      start_period: 30s
+
+  queue:
+    <<: *api-base
+    command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3"]
+    depends_on:
+      api: { condition: service_healthy }
+
+  scheduler:
+    <<: *api-base
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      api: { condition: service_healthy }
+
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}/api/v1
+      API_INTERNAL_URL: http://api:8000/api/v1
+      SESSION_COOKIE: lt_token
+      NEXT_TELEMETRY_DISABLED: "1"
+      WATCHPACK_POLLING: "true"
+    # Reinstall node_modules whenever package-lock.json changes, then start the dev server (hot reload).
+    command:
+      - sh
+      - -c
+      - |
+        HASH=$$(sha1sum package-lock.json | cut -d' ' -f1)
+        if [ ! -f node_modules/.lembar-lock ] || [ "$$(cat node_modules/.lembar-lock)" != "$$HASH" ]; then
+          echo "[lembar] npm ci…" && npm ci --no-audit --no-fund && echo "$$HASH" > node_modules/.lembar-lock
+        fi
+        exec npm run dev -- --hostname 0.0.0.0 --port 3000
+    ports: ["${WEB_PORT:-3000}:3000"]
+    volumes:
+      - ./web:/app
+      - web-node-modules:/app/node_modules
+      - web-next:/app/.next
+    depends_on:
+      api: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  redis-data:
+  api-vendor:
+  web-node-modules:
+  web-next:

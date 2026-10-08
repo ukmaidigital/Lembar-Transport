@@ -1,0 +1,10 @@
+# Keep build contexts small: dependencies are installed inside the images/volumes.
+**/node_modules
+**/vendor
+web/.next
+web/e2e/output
+api/database/*.sqlite
+docs/png
+docs/screenshots
+tools/prd/build
+.git

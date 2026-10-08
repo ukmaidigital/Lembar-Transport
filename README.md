@@ -32,6 +32,31 @@ npm --prefix web run e2e                                 # Playwright: alur cust
 
 Integrasi eksternal dijalankan dalam mode *stub* yang siap diganti: OTP/WhatsApp/email dicatat ke tabel `notification_logs` (driver `log`), gateway pembayaran di balik flag `payment.gateway_enabled`, berkas di disk privat dengan URL bertanda tangan (ganti `FILESYSTEM_DISK=s3` untuk produksi).
 
+## Windows: semua di Docker (tanpa PHP/Node)
+
+Prasyarat: **Docker Desktop** (backend WSL2, status *Engine running*) dan **Git**. Buka PowerShell:
+
+```powershell
+git clone -b claude/optimistic-faraday-9hgpbq https://github.com/ukmaidigital/Lembar-Transport.git "D:\Fullstack Project\Lembar Transport"
+cd "D:\Fullstack Project\Lembar Transport"
+powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1
+```
+
+Skrip menjalankan `docker compose up -d --build` dengan `docker-compose.yml` di root: **mysql** (8.4), **redis**, **api** (Laravel di PHP 8.3, `:8000`), **queue**, **scheduler**, dan **web** (Next.js dev server dengan hot reload, `:3000`). Start pertama 5–10 menit (unduh image, `composer install`, `npm ci`, migrasi + seed demo); berikutnya hanya beberapa detik dan data tetap tersimpan. Setelah siap, browser terbuka ke http://localhost:3000.
+
+| Perintah | Fungsi |
+|---|---|
+| `scripts\setup-windows.ps1` | jalankan / perbarui stack |
+| `scripts\setup-windows.ps1 -Stop` atau `docker compose down` | hentikan (data tetap) |
+| `scripts\setup-windows.ps1 -Reset` | hapus database, vendor, node_modules lalu mulai dari nol |
+| `docker compose logs -f api web` | lihat log |
+| `docker compose exec mysql mysql -ulembar -psecret lembar` | MySQL CLI |
+| `docker compose exec -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: api php artisan test` | jalankan Pest di container (SQLite in-memory, database dev tidak tersentuh) |
+
+MySQL dari aplikasi Windows (HeidiSQL, DBeaver, MySQL Workbench): host `127.0.0.1`, port **3307** (bukan 3306, agar tidak bentrok dengan XAMPP/Laragon), user `lembar`, kata sandi `secret`, database `lembar`.
+
+Troubleshooting: port bentrok → set variabel sebelum menjalankan skrip, misalnya `$env:WEB_PORT=3001; $env:API_PORT=8001; $env:MYSQL_PORT=3308`. Perubahan kode di `api/` dan `web/` langsung terbaca (bind mount). Bila `package-lock.json` / `composer.lock` berubah, dependensi dipasang ulang otomatis saat container restart (`docker compose restart api web`).
+
 ## Menjalankan dengan MySQL 8 + Redis (Docker)
 
 Prasyarat tambahan: Docker Engine (daemon berjalan) dan Docker Compose v2+. API dan web tetap berjalan native; hanya database dan Redis yang di container (`deploy/docker-compose.dev.yml`).

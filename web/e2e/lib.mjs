@@ -9,6 +9,8 @@ mkdirSync(OUT, { recursive: true });
 export async function launch(options = {}) {
   const browser = await chromium.launch();
   const context = await browser.newContext({ locale: "id-ID", ...options });
+  // Dev-mode stacks (docker-compose.yml runs `next dev`) compile each route on first hit, so allow extra time.
+  context.setDefaultTimeout(Number(process.env.E2E_TIMEOUT ?? 60000));
   const page = await context.newPage();
   const errors = [];
   const ignore = options.ignore ?? /auth\/me|otp\/request|driver\/masuk/;
