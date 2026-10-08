@@ -6,3 +6,8 @@ tools/prd/build/
 .DS_Store
 Thumbs.db
 *.log
+# app build artifacts
+api/storage/app/private/*
+!api/storage/app/private/.gitignore
+web/.next/
+web/node_modules/
