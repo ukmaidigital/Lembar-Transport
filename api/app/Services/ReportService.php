@@ -50,12 +50,12 @@ class ReportService
 
     public function orders(Carbon $from, Carbon $to, array $filters = []): array
     {
-        $q = Order::query()->whereBetween('created_at', [$from, $to]);
+        $q = Order::query()->whereBetween('orders.created_at', [$from, $to]);
         $byStatus = (clone $q)->selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status');
         $byZone = (clone $q)->join('zones', 'zones.id', '=', 'orders.zone_id')->selectRaw('zones.name as zone, count(*) as c')->groupBy('zones.name')->pluck('c', 'zone');
         $byClass = (clone $q)->join('vehicle_classes', 'vehicle_classes.id', '=', 'orders.vehicle_class_id')->selectRaw('vehicle_classes.name_id as class, count(*) as c')->groupBy('vehicle_classes.name_id')->pluck('c', 'class');
         $byChannel = (clone $q)->selectRaw('channel, count(*) as c')->groupBy('channel')->pluck('c', 'channel');
-        $byDay = (clone $q)->selectRaw('substr(created_at, 1, 10) as d, count(*) as c')->groupBy('d')->orderBy('d')->pluck('c', 'd');
+        $byDay = (clone $q)->selectRaw('substr(orders.created_at, 1, 10) as d, count(*) as c')->groupBy('d')->orderBy('d')->pluck('c', 'd');
 
         return ['by_status' => $byStatus, 'by_zone' => $byZone, 'by_class' => $byClass, 'by_channel' => $byChannel, 'by_day' => $byDay, 'total' => (clone $q)->count()];
     }

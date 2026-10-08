@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\VehicleClass;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 /** Demo data for local development and e2e tests (not for production). */
 class DemoSeeder extends Seeder
@@ -134,5 +135,19 @@ class DemoSeeder extends Seeder
             'base' => 300000, 'total' => 300000, 'driver_id' => $hadi->id, 'vehicle_id' => $hadi->primaryVehicle->id, 'assigned_at' => now()->subDays(3),
             'en_route_at' => now()->subDays(2)->setTime(5, 0), 'arrived_at' => now()->subDays(2)->setTime(5, 40), 'on_trip_at' => now()->subDays(2)->setTime(6, 20), 'completed_at' => now()->subDays(2)->setTime(7, 30), 'cash_collected' => 300000,
         ]);
+        $this->writePlaceholderFiles();
+
     }
+    /** Demo documents and payment proofs point to files under storage/app/private/demo; create tiny placeholders so signed URLs resolve. */
+    private function writePlaceholderFiles(): void
+    {
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+        $paths = DriverDocument::query()->pluck('file_path')->merge(Payment::query()->whereNotNull('proof_path')->pluck('proof_path'))->unique();
+        foreach ($paths as $path) {
+            if (! Storage::disk('local')->exists($path)) {
+                Storage::disk('local')->put($path, $png);
+            }
+        }
+    }
+
 }
