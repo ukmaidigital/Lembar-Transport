@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+
+jobs:
+  api:
+    name: API · Pint + Pest (SQLite)
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: api } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: "8.3", extensions: "mbstring, intl, bcmath, pdo_sqlite, sqlite3, gd, zip", coverage: none }
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('api/composer.lock') }}
+      - run: composer install --prefer-dist --no-interaction --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+      - run: vendor/bin/pint --test
+      - run: php artisan test --compact
+
+  web:
+    name: Web · ESLint + tsc + next build
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+        env: { NEXT_PUBLIC_API_URL: http://127.0.0.1:8000/api/v1, API_INTERNAL_URL: http://127.0.0.1:8000/api/v1 }
+
+  e2e:
+    name: E2E · Playwright (customer, driver, admin)
+    runs-on: ubuntu-latest
+    needs: [api, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: "8.3", extensions: "mbstring, intl, bcmath, pdo_sqlite, sqlite3, gd, zip", coverage: none }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: composer install --prefer-dist --no-interaction --no-progress
+        working-directory: api
+      - run: npm ci && npx playwright install --with-deps chromium
+        working-directory: web
+      - run: ./web/e2e/run.sh
+        env:
+          E2E_OUTPUT: ${{ github.workspace }}/e2e-output
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: e2e-screenshots, path: e2e-output, if-no-files-found: ignore }

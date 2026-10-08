@@ -1,8 +1,75 @@
-# Lembar Transport — PRD
+# Lembar Transport
 
-Dokumen kebutuhan produk (Product Requirements Document) untuk **Lembar Transport**, web app pemesanan kendaraan (mobil + driver) dari **Pelabuhan Lembar, Lombok Barat**. Stack yang ditetapkan: **Laravel** (REST API) · **MySQL** · **Next.js**. Tiga peran: **Customer**, **Driver mitra**, dan **Admin** (verifikasi dan manajemen driver, dispatch, tarif, pembayaran, laporan).
+Web app pemesanan kendaraan (mobil + driver) dari **Pelabuhan Lembar, Lombok Barat**: harga tetap per zona, driver terverifikasi, titik temu jelas. Monorepo berisi **PRD** (`docs/`), **API Laravel 12** (`api/`), dan **frontend Next.js 15** (`web/`) dengan tiga antarmuka — **customer** (ID/EN), **driver** (PWA), dan **admin** (verifikasi & manajemen driver, dispatch, pembayaran, tarif, laporan).
 
-Status: **v1.0 — draft untuk review** (8 Oktober 2026). Bahasa dokumen: Indonesia.
+Status: **Fase 1 MVP terimplementasi** sesuai PRD v1.0 (8 Oktober 2026) — seluruh kebutuhan *Must* Bab 7 plus beberapa *Should* yang murah (rating, riwayat, SOS, payout mingguan, feature flag).
+
+![Ringkasan PRD satu halaman](docs/img/prd-overview.png)
+
+## Mulai cepat (lokal, SQLite)
+
+Prasyarat: PHP 8.3 + Composer, Node 22 + npm. Tidak perlu MySQL/Docker untuk mencoba.
+
+```bash
+scripts/dev.sh          # install deps, migrate + seed demo, jalankan API :8000, scheduler, queue, dan web :3000
+scripts/dev.sh --reset  # buat ulang database demo
+```
+
+| Antarmuka | URL | Akun demo |
+|---|---|---|
+| Customer | http://localhost:3000 (EN: `/en`) | OTP ke nomor WhatsApp apa pun; **kode OTP ditampilkan di layar** pada mode non-produksi |
+| Driver (PWA) | http://localhost:3000/driver | `08120000001` … `08120000006` (aktif), `08120000010` (menunggu verifikasi); daftar baru lewat `/driver/masuk?daftar=1` |
+| Admin | http://localhost:3000/admin/masuk | `super@lembartransport.test`, `ops@…`, `verifier@…`, `finance@…` — kata sandi `password` (2FA opsional; wajib bila `LEMBAR_ADMIN_2FA_REQUIRED=true`) |
+| API | http://localhost:8000/api/v1 | Lihat `api/routes/api.php` (129 endpoint, Bab 14 PRD) |
+
+Pengujian:
+
+```bash
+cd api && vendor/bin/pint --test && php artisan test     # 32 feature test Pest (SQLite in-memory)
+cd web && npm run lint && npx tsc --noEmit && npm run build
+npm --prefix web run e2e                                 # Playwright: alur customer, driver, admin (screenshot di web/e2e/output)
+```
+
+Integrasi eksternal dijalankan dalam mode *stub* yang siap diganti: OTP/WhatsApp/email dicatat ke tabel `notification_logs` (driver `log`), gateway pembayaran di balik flag `payment.gateway_enabled`, berkas di disk privat dengan URL bertanda tangan (ganti `FILESYSTEM_DISK=s3` untuk produksi).
+
+## Deploy (Docker Compose, MySQL 8 + Redis)
+
+```bash
+cp deploy/.env.example deploy/.env   # isi APP_KEY, domain, kredensial DB, rekening
+docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build
+```
+
+Layanan: `nginx` (satu entrypoint: `/api/*` → php-fpm, sisanya → Next.js), `api` (php-fpm, migrasi otomatis saat boot), `queue` (`queue:work redis`), `scheduler` (`schedule:work`: dispatch tiap menit, kedaluwarsa pembayaran, pengingat, auto-complete, pengecekan dokumen, payout mingguan, purge data), `web` (Next.js standalone), `mysql`, `redis`. CI (`.github/workflows/ci.yml`) menjalankan Pint + Pest, ESLint + tsc + `next build`, dan e2e Playwright.
+
+## Arsitektur singkat
+
+- **API** `api/` — Laravel 12, Sanctum token per peran (customer/driver 30 hari, admin 8 jam + TOTP), spatie/permission (`super_admin`, `ops`, `verifier`, `finance`), spatie/activitylog (audit). Domain di `app/Services`: `QuoteService` (tarif aktif, surcharge malam/hari raya, pembulatan, kunci harga 30 menit), `OrderStateMachine` (Lampiran C, riwayat append-only), `DispatchEngine` (kelayakan, skor 40/20/20/20, gelombang 5/10/semua, *first-accept-wins* dengan `lockForUpdate`, retry 30 menit, `needs_attention`), `PaymentService`, `CancellationPolicy` (tier ≥24 jam 0 % · 6–24 jam 50 % · <6 jam 100 %), `TripService` (jangkar sandar, tunggu gratis 60 menit, no-show, `client_timestamp` offline), `LedgerService` (komisi, top-up, payout, ambang saldo), `DriverOnboardingService`, `NotificationService`, `ReportService`. Aturan bisnis di `config/lembar.php`, dapat ditimpa dari admin (tabel `settings`).
+- **Web** `web/` — Next.js 15 App Router, Tailwind v4, next-intl (customer ID/EN). BFF: token disimpan di cookie httpOnly oleh `/api/auth/session`, semua panggilan browser lewat `/api/proxy/*`; `middleware.ts` menjaga rute per area. Driver = PWA (manifest, service worker Serwist, antrean aksi offline di IndexedDB yang mengirim ulang status trip dengan stempel waktu klien).
+- **Data** — migrasi MySQL-compatible (Bab 13), seeder: peran/izin, kelas kendaraan, zona/lokasi/titik temu/rute feri, tarif Lampiran B, pengaturan, admin, data demo.
+
+## Pemetaan kebutuhan (Bab 7) → implementasi
+
+| FR | Implementasi |
+|---|---|
+| CUS-01…06 pencarian, quote, kapasitas, feri, kontak+OTP, pembayaran | `web/src/components/booking-wizard.tsx`, `POST /public/quotes`, `POST /orders`, `OtpService`, `PaymentService::allowedMethods` |
+| CUS-08…11, 14 tiket, "kapal sandar", pembatalan, status, bahasa | `web/src/components/ticket-view.tsx`, `/orders/{code}` (gate `phone_last4`), `/docked`, `/cancel`, next-intl `messages/{id,en}.json` |
+| CUS-12/13 rating, riwayat | `pesanan/[kode]/ulasan`, `akun/pesanan`, `OrderService::rate` |
+| DRV-01…05 daftar, dokumen, kendaraan, rekening, status verifikasi | `web/src/app/(driver)/driver/daftar`, `verifikasi`, `DriverOnboardingService` |
+| DRV-06…12 online, tawaran, terima/tolak, jadwal, status trip, tunai, offline | `driver/page.tsx`, `tawaran`, `jadwal`, `trip/[kode]`, `DispatchEngine::accept`, `TripService::setStatus`, `web/src/lib/offline-queue.ts` |
+| DRV-13…17 papan nama, no-show, pendapatan/top-up, profil/dokumen, SOS | `trip/[kode]/papan-nama`, `TripService::requestNoShow`, `pendapatan`, `profil/*`, `bantuan` + `trips/{code}/issues` |
+| ADM-01…07 verifikasi & manajemen driver, kendaraan | `admin/verifikasi/[id]` (review berdampingan, checklist, keputusan), `admin/driver/*`, `admin/kendaraan` |
+| ADM-09…14 pesanan, detail, assign manual, dispatch, pesanan manual, pembatalan | `admin/pesanan/*`, `admin/dispatch`, `OrderAdminController` (eligible drivers + override beralasan) |
+| ADM-15…16 pembayaran, refund | `admin/pembayaran`, `PaymentAdminController` |
+| ADM-17…19 tarif, surcharge, zona/titik temu | `admin/tarif`, `admin/zona`, `admin/titik-temu`, `CatalogController` |
+| ADM-20…23 ledger, top-up, payout, laporan | `admin/keuangan/*`, `admin/laporan` (JSON + CSV), `ReportService` |
+| ADM-24… pengaturan, staf, audit | `admin/pengaturan`, `admin/staf`, `admin/audit`, `SettingsController`, activitylog |
+| SYS-01…08, 11, 12 auth/peran, notifikasi, audit, scheduler, idempotency, i18n, rate limit, retensi, flag | `bootstrap/app.php`, `routes/console.php`, `Idempotency-Key`, `SetLocale`, `throttle:*`, `MaintenanceService::purgeExpiredData`, `Setting::value` |
+
+## Tangkapan layar
+
+Hasil e2e terhadap data demo ada di [`docs/screenshots/`](docs/screenshots/): `customer-*.png` (landing, harga EN, wizard, tiket, pembatalan), `driver-*.png` (beranda, tawaran, trip, papan nama, jadwal, pendapatan, pendaftaran, verifikasi), `admin-*.png` (dashboard, verifikasi, driver, pesanan, papan, dispatch, assign, pembayaran, ledger, payout, tarif, zona, titik temu, laporan, pengaturan, staf, audit).
+
+## Dokumen produk (PRD)
 
 ## Isi repositori
 
@@ -53,15 +120,22 @@ node tools/prd/render.cjs shot tools/prd/diagrams/erd.html docs/img/erd.png   # 
 
 Setiap diagram adalah berkas HTML mandiri (CSS + SVG inline, font Inter, tanpa ketergantungan jaringan); `tools/prd/diagrams/_lib.js` menyediakan helper kotak, panah, swimlane, dan legenda; `_wire.css` menyediakan gaya wireframe.
 
-## Struktur
+## Struktur repositori
 
 ```
 README.md
+api/                          Laravel 12 REST API (app/Services = domain, routes/api.php = 129 endpoint, tests/Feature = Pest)
+web/                          Next.js 15 — src/app/(public)/[locale] customer · (driver)/driver PWA · (admin)/admin · api/ (BFF)
+  e2e/                        alur Playwright end-to-end (customer, driver, admin) + run.sh
+deploy/                       Dockerfile.api, Dockerfile.web, docker-compose.yml, nginx.conf, .env.example
+scripts/dev.sh                stack pengembangan lokal (SQLite)
+.github/workflows/ci.yml      Pint + Pest · ESLint + tsc + next build · e2e
 docs/
   PRD-Lembar-Transport.md     PRD lengkap
   PRD-Lembar-Transport.pdf    hasil render
   img/                        diagram, wireframe, infografis (PNG, 2x)
   png/                        PRD per halaman A4 (PNG)
+  screenshots/                tangkapan layar hasil e2e
 tools/prd/
   diagrams/*.html             sumber setiap gambar
   diagrams/_lib.js, _lib.css  helper SVG dan gaya bersama

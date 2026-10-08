@@ -1,0 +1,23 @@
+# Laravel API — php-fpm image shared by the api, queue and scheduler services.
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY api/composer.json api/composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+
+FROM php:8.3-fpm-alpine
+RUN apk add --no-cache icu-dev libzip-dev oniguruma-dev libpng-dev libjpeg-turbo-dev freetype-dev $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-jpeg --with-freetype \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql bcmath intl zip gd opcache pcntl \
+    && pecl install redis && docker-php-ext-enable redis \
+    && apk del $PHPIZE_DEPS
+COPY deploy/php.ini /usr/local/etc/php/conf.d/lembar.ini
+WORKDIR /var/www/api
+COPY api/ ./
+COPY --from=vendor /app/vendor ./vendor
+RUN composer_dump() { php -r "copy('https://getcomposer.org/installer','/tmp/c.php');" && php /tmp/c.php --install-dir=/usr/local/bin --filename=composer && composer dump-autoload --optimize --no-dev; }; composer_dump \
+    && chown -R www-data:www-data storage bootstrap/cache && chmod -R ug+rwx storage bootstrap/cache
+COPY deploy/entrypoint.api.sh /usr/local/bin/entrypoint
+RUN chmod +x /usr/local/bin/entrypoint
+USER www-data
+ENTRYPOINT ["entrypoint"]
+CMD ["php-fpm"]

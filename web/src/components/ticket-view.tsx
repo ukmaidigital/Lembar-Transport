@@ -95,7 +95,6 @@ export function TicketView({ code }: { code: string }) {
       {order.meeting_point && (
         <div className="card">
           <div className="mb-1 flex items-center gap-2 text-sm font-semibold"><MapPin size={16} className="text-brand-500" />{t("meeting")}: {order.meeting_point.name}</div>
-          {/* eslint-disable-next-line @next/next/no-img-element -- signed, short-lived URL from the API */}
           {order.meeting_point.photo_url && <img src={order.meeting_point.photo_url} alt="" className="mb-2 h-40 w-full rounded-lg object-cover" />}
           <p className="text-sm text-slate-600">{order.meeting_point.instructions}</p>
           <p className="mt-1 text-xs text-slate-500">{t("nameBoard", { name: order.customer.name.toUpperCase() })}</p>

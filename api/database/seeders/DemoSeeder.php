@@ -138,6 +138,7 @@ class DemoSeeder extends Seeder
         $this->writePlaceholderFiles();
 
     }
+
     /** Demo documents and payment proofs point to files under storage/app/private/demo; create tiny placeholders so signed URLs resolve. */
     private function writePlaceholderFiles(): void
     {
@@ -149,5 +150,4 @@ class DemoSeeder extends Seeder
             }
         }
     }
-
 }
