@@ -11,6 +11,7 @@ use App\Models\Driver;
 use App\Models\DriverDocument;
 use App\Services\DriverOnboardingService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ApplicationController extends Controller
 {
@@ -41,6 +42,7 @@ class ApplicationController extends Controller
 
     public function update(Request $request)
     {
+        $driver = $this->driver($request, true);
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:120'],
             'nik' => ['sometimes', 'digits:16'],
@@ -53,7 +55,7 @@ class ApplicationController extends Controller
             'vehicle.brand' => ['required_with:vehicle', 'string', 'max:60'],
             'vehicle.model' => ['required_with:vehicle', 'string', 'max:60'],
             'vehicle.year' => ['required_with:vehicle', 'integer', 'min:1990', 'max:'.(now()->year + 1)],
-            'vehicle.plate_number' => ['required_with:vehicle', 'string', 'max:20'],
+            'vehicle.plate_number' => ['required_with:vehicle', 'string', 'max:20', Rule::unique('vehicles', 'plate_number')->ignore($driver->primaryVehicle?->id)],
             'vehicle.color' => ['nullable', 'string', 'max:30'],
             'vehicle.seats' => ['nullable', 'integer', 'min:1', 'max:40'],
             'vehicle.luggage_capacity' => ['nullable', 'integer', 'min:0', 'max:40'],
@@ -65,7 +67,7 @@ class ApplicationController extends Controller
             'bank_account.account_number' => ['required_with:bank_account', 'string', 'max:30'],
             'bank_account.account_name' => ['required_with:bank_account', 'string', 'max:120'],
         ]);
-        $driver = $this->onboarding->updateApplication($this->driver($request, true), $data);
+        $driver = $this->onboarding->updateApplication($driver, $data);
 
         return new DriverResource($driver->load(['user', 'primaryVehicle.vehicleClass', 'bankAccount']));
     }
