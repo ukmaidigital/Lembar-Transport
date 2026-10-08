@@ -1,0 +1,54 @@
+{
+  "brand": "Lembar Transport",
+  "nav": { "home": "Home", "prices": "Prices", "track": "Track booking", "help": "Help", "account": "Account", "login": "Sign in", "logout": "Sign out", "driverArea": "Driver partners" },
+  "footer": { "tagline": "Book a car from Lembar Harbour at a fixed price.", "terms": "Terms", "privacy": "Privacy", "cancellation": "Cancellation policy", "faq": "FAQ", "ops": "24-hour Ops via WhatsApp" },
+  "landing": {
+    "title": "Book a car from Lembar Harbour at a fixed price",
+    "subtitle": "Verified drivers · clear meeting point · no haggling",
+    "popular": "Popular fares (Standard MPV, one way)",
+    "how": "How it works",
+    "step1": "Book", "step1d": "Pick your destination and enter your ferry details; the price locks instantly.",
+    "step2": "Arrive", "step2d": "Your driver waits at the meeting point with a name board when the ferry docks.",
+    "step3": "Go", "step3d": "Pay cash at your destination or cashless up front. 60 minutes of free waiting.",
+    "trust1": "Fixed price per zone", "trust2": "Verified drivers & vehicles", "trust3": "Book before you board",
+    "instant": "Already at the harbour? Book now"
+  },
+  "search": {
+    "destination": "Destination", "destinationPh": "Choose a destination…", "date": "Arrival date", "time": "Estimated arrival time", "passengers": "Passengers", "luggage": "Luggage (suitcases)",
+    "childSeats": "Child seats", "roofRack": "Roof rack / surfboard", "submit": "See prices", "wita": "WITA"
+  },
+  "wizard": {
+    "steps": ["Destination", "Vehicle", "Ferry", "Contact", "Pay"],
+    "locked": "Price locked for {minutes} minutes", "expired": "Price expired, please re-quote.", "requote": "Re-quote",
+    "choose": "Choose", "chosen": "Chosen", "fits": "{pax} passengers · {bags} bags", "notFit": "Does not fit", "twoVehicles": "Consider two vehicles",
+    "includes": "Price includes fuel, driver and harbour fees. {minutes} minutes of free waiting after the ferry docks.", "details": "Details",
+    "ferryTitle": "Ferry details", "ferryHint": "So your driver is ready even if the ferry is late. Skip if you are already at the harbour.", "route": "Route and operator", "noFerry": "No ferry details (pick me up at the time I entered)",
+    "departure": "Departure date & time", "arrivalDate": "Arrival date", "eta": "Estimated docking", "overnight": "Overnight ferry arrives the next day. Please double-check the arrival date.",
+    "priceUpdated": "Price updated to match the estimated docking time.",
+    "contactTitle": "Contact", "name": "Full name", "phone": "WhatsApp number", "email": "Email (optional)", "notes": "Notes for the driver", "notesPh": "e.g. two large suitcases and a stroller",
+    "meetingPoint": "Meeting point at the harbour", "loginFirst": "Verify your WhatsApp number to continue", "loggedAs": "Signed in as {name}",
+    "payTitle": "Payment method", "cash": "Cash to driver", "cashD": "Pay on arrival at your destination", "transfer": "Bank transfer / QRIS", "transferD": "Upload proof, confirmed by our Finance team", "gateway": "Card / e-wallet / VA", "gatewayD": "Paid automatically via the payment gateway",
+    "transferUnavailable": "Manual transfer is only available for bookings at least {hours} hours before pickup.",
+    "policy": "By booking you accept the Terms and the cancellation policy: ≥ 24 h free, 6–24 h 50 %, < 6 h 100 %.",
+    "total": "Total", "submit": "Book now", "next": "Next", "back": "Back"
+  },
+  "ticket": {
+    "title": "Ticket", "gateTitle": "Open your ticket", "gateHint": "Enter the last 4 digits of the WhatsApp number used for the booking.", "gateSubmit": "Open",
+    "docked": "Ferry has docked", "dockedHint": "Tap when the ferry docks so your driver gets ready and free waiting starts.", "dockedDone": "Docking confirmed at {time}",
+    "timeline": "Status", "driverCard": "Your driver", "waitingDriver": "A driver will be assigned and sent to your WhatsApp.", "meeting": "Meeting point", "nameBoard": "Your driver holds a name board reading \"{name}\"",
+    "pay": "Pay now", "cancel": "Cancel booking", "rate": "Rate your trip", "help": "Help", "code": "Booking code", "total": "Total", "passengers": "Passengers", "luggage": "Luggage", "ferry": "Ferry",
+    "contactDriver": "WhatsApp", "callDriver": "Call", "etaRange": "Estimated docking", "pickup": "Pickup", "paymentDue": "Complete payment before {time}", "trips": "{n} trips",
+    "h": { "created": "Booking created", "paid": "Payment confirmed", "assigned": "Driver assigned", "en_route": "Driver heading to the harbour", "arrived": "Driver at meeting point", "on_trip": "On the way", "completed": "Completed" }
+  },
+  "payment": {
+    "title": "Payment", "instructions": "Transfer the exact amount below and put the booking code in the transfer note.", "bank": "Bank", "account": "Account number", "holder": "Account holder", "amount": "Amount", "note": "Transfer note", "copy": "Copy",
+    "upload": "Upload proof of transfer", "uploadHint": "JPG, PNG or PDF up to 5 MB", "submit": "Send proof", "sent": "Proof sent. Finance will confirm and notify you on WhatsApp.", "reviewing": "Proof under review", "paid": "Payment confirmed", "qris": "A static QRIS is available at the Ops desk; contact us if you need it."
+  },
+  "cancel": { "title": "Cancel booking", "fee": "Cancellation fee", "refund": "Refund", "reason": "Reason", "reasonPh": "e.g. change of plans", "confirm": "Yes, cancel", "keep": "Keep booking", "done": "Booking cancelled.", "notCancellable": "This booking cannot be cancelled in its current status.", "hours": "{h} hours before pickup" },
+  "rating": { "title": "How was your trip?", "comment": "Review (optional)", "submit": "Submit rating", "done": "Thank you for your rating!", "window": "Ratings can be given up to 7 days after completion." },
+  "login": { "title": "Sign in", "subtitle": "Sign in with your WhatsApp number to see your bookings.", "driverCta": "Driver partner? Sign in here" },
+  "account": { "title": "My account", "orders": "Booking history", "noOrders": "No bookings yet.", "book": "Book now", "language": "Language", "save": "Save", "saved": "Saved" },
+  "prices": { "title": "One-way transfer prices from Lembar Harbour", "subtitle": "Fixed prices per zone and vehicle class including fuel, driver and harbour fees. Night (22:00–06:00) and holiday surcharges are shown when you book.", "zone": "Zone", "book": "Book" },
+  "qr": { "title": "Book now at Lembar Harbour", "subtitle": "Immediate pickup from the meeting point. Drivers online at the harbour receive your booking.", "cta": "Start" },
+  "common": { "loading": "Loading…", "error": "Something went wrong", "retry": "Retry", "save": "Save", "close": "Close", "back": "Back", "notFound": "Page not found" }
+}

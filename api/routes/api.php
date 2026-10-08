@@ -23,7 +23,7 @@ use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 
 // ---- Publik (PRD 14.1)
-Route::prefix('public')->middleware('throttle:60,1')->group(function () {
+Route::prefix('public')->middleware('throttle:60,1,public')->group(function () {
     Route::get('vehicle-classes', [PublicController::class, 'vehicleClasses']);
     Route::get('zones', [PublicController::class, 'zones']);
     Route::get('locations', [PublicController::class, 'locations']);
@@ -36,10 +36,10 @@ Route::prefix('public')->middleware('throttle:60,1')->group(function () {
 
 // ---- Autentikasi
 Route::prefix('auth')->group(function () {
-    Route::post('otp/request', [AuthController::class, 'requestOtp'])->middleware('throttle:10,1');
-    Route::post('otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:20,1');
-    Route::post('admin/login', [AuthController::class, 'adminLogin'])->middleware('throttle:10,1');
-    Route::post('admin/totp', [AuthController::class, 'adminTotp'])->middleware('throttle:10,1');
+    Route::post('otp/request', [AuthController::class, 'requestOtp'])->middleware('throttle:10,1,otp_request');
+    Route::post('otp/verify', [AuthController::class, 'verifyOtp'])->middleware('throttle:20,1,otp_verify');
+    Route::post('admin/login', [AuthController::class, 'adminLogin'])->middleware('throttle:10,1,admin_login');
+    Route::post('admin/totp', [AuthController::class, 'adminTotp'])->middleware('throttle:10,1,admin_totp');
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
@@ -53,7 +53,7 @@ Route::prefix('auth')->group(function () {
 Route::get('files/{path}', [FileController::class, 'show'])->where('path', '.*')->name('files.show')->middleware('signed');
 
 // ---- Customer (PRD 14.2); tiket dapat dibuka dengan kode + 4 digit telepon tanpa login
-Route::middleware('throttle:120,1')->group(function () {
+Route::middleware('throttle:120,1,customer')->group(function () {
     Route::post('orders', [OrderController::class, 'store'])->middleware('auth:sanctum');
     Route::get('orders', [OrderController::class, 'index'])->middleware(['auth:sanctum', 'abilities:customer']);
     Route::get('orders/{code}', [OrderController::class, 'show']);
@@ -73,7 +73,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // ---- Driver (PRD 14.3)
-Route::prefix('driver')->middleware(['auth:sanctum', 'abilities:driver', 'throttle:120,1'])->group(function () {
+Route::prefix('driver')->middleware(['auth:sanctum', 'abilities:driver', 'throttle:120,1,driver'])->group(function () {
     Route::post('applications', [ApplicationController::class, 'start']);
     Route::patch('applications/current', [ApplicationController::class, 'update']);
     Route::post('applications/current/submit', [ApplicationController::class, 'submit']);
@@ -100,7 +100,7 @@ Route::prefix('driver')->middleware(['auth:sanctum', 'abilities:driver', 'thrott
 });
 
 // ---- Admin (PRD 14.4)
-Route::prefix('admin')->middleware(['auth:sanctum', 'abilities:admin', 'throttle:300,1'])->group(function () {
+Route::prefix('admin')->middleware(['auth:sanctum', 'abilities:admin', 'throttle:300,1,admin'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
 
     Route::middleware('permission:drivers.view')->group(function () {

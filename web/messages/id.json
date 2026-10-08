@@ -1,0 +1,54 @@
+{
+  "brand": "Lembar Transport",
+  "nav": { "home": "Beranda", "prices": "Harga", "track": "Lacak pesanan", "help": "Bantuan", "account": "Akun", "login": "Masuk", "logout": "Keluar", "driverArea": "Mitra driver" },
+  "footer": { "tagline": "Pesan mobil dari Pelabuhan Lembar dengan harga pasti.", "terms": "Syarat & Ketentuan", "privacy": "Privasi", "cancellation": "Kebijakan pembatalan", "faq": "FAQ", "ops": "Ops 24 jam via WhatsApp" },
+  "landing": {
+    "title": "Pesan mobil dari Pelabuhan Lembar dengan harga pasti",
+    "subtitle": "Driver terverifikasi · titik temu jelas · tanpa tawar-menawar",
+    "popular": "Harga populer (MPV Standar, sekali jalan)",
+    "how": "Cara kerja",
+    "step1": "Pesan", "step1d": "Pilih tujuan dan masukkan data kapal Anda; harga langsung terkunci.",
+    "step2": "Tiba", "step2d": "Driver menunggu di titik temu dengan papan nama saat kapal sandar.",
+    "step3": "Jalan", "step3d": "Bayar tunai di tujuan atau non-tunai di awal. Tunggu gratis 60 menit.",
+    "trust1": "Harga tetap per zona", "trust2": "Driver & kendaraan terverifikasi", "trust3": "Bisa dipesan sebelum naik kapal",
+    "instant": "Sudah di pelabuhan? Pesan sekarang"
+  },
+  "search": {
+    "destination": "Tujuan", "destinationPh": "Pilih tujuan…", "date": "Tanggal tiba", "time": "Perkiraan jam tiba", "passengers": "Penumpang", "luggage": "Bagasi (koper)",
+    "childSeats": "Child seat", "roofRack": "Roof rack / papan selancar", "submit": "Lihat harga", "wita": "WITA"
+  },
+  "wizard": {
+    "steps": ["Tujuan", "Kendaraan", "Feri", "Kontak", "Bayar"],
+    "locked": "Harga dikunci {minutes} menit", "expired": "Harga kedaluwarsa, hitung ulang.", "requote": "Hitung ulang",
+    "choose": "Pilih", "chosen": "Dipilih", "fits": "{pax} penumpang · {bags} bagasi", "notFit": "Tidak muat", "twoVehicles": "Pertimbangkan dua kendaraan",
+    "includes": "Harga termasuk BBM, driver, dan pas pelabuhan. Tunggu gratis {minutes} menit sejak kapal sandar.", "details": "Rincian",
+    "ferryTitle": "Data kapal", "ferryHint": "Agar driver siap meski kapal terlambat. Lewati jika Anda sudah di pelabuhan.", "route": "Rute dan operator", "noFerry": "Tanpa data kapal (jemput sesuai jam yang saya isi)",
+    "departure": "Tanggal & jam berangkat", "arrivalDate": "Tanggal tiba", "eta": "Estimasi sandar", "overnight": "Kapal malam tiba keesokan hari. Pastikan tanggal tiba benar.",
+    "priceUpdated": "Harga diperbarui mengikuti estimasi sandar.",
+    "contactTitle": "Kontak", "name": "Nama lengkap", "phone": "Nomor WhatsApp", "email": "Email (opsional)", "notes": "Catatan untuk driver", "notesPh": "Contoh: dua koper besar dan satu stroller",
+    "meetingPoint": "Titik temu di pelabuhan", "loginFirst": "Verifikasi nomor WhatsApp Anda untuk melanjutkan", "loggedAs": "Masuk sebagai {name}",
+    "payTitle": "Metode pembayaran", "cash": "Tunai ke driver", "cashD": "Bayar saat tiba di tujuan", "transfer": "Transfer bank / QRIS", "transferD": "Unggah bukti, dikonfirmasi tim Finance", "gateway": "Kartu / e-wallet / VA", "gatewayD": "Dibayar otomatis melalui gateway",
+    "transferUnavailable": "Transfer manual hanya untuk pemesanan ≥ {hours} jam sebelum penjemputan.",
+    "policy": "Dengan memesan Anda menyetujui Syarat & Ketentuan dan kebijakan pembatalan: ≥ 24 jam gratis, 6–24 jam 50 %, < 6 jam 100 %.",
+    "total": "Total", "submit": "Pesan sekarang", "next": "Lanjut", "back": "Kembali"
+  },
+  "ticket": {
+    "title": "Tiket", "gateTitle": "Buka tiket", "gateHint": "Masukkan 4 digit terakhir nomor WhatsApp yang dipakai saat memesan.", "gateSubmit": "Buka",
+    "docked": "Kapal sudah sandar", "dockedHint": "Tekan saat kapal merapat agar driver bersiap dan waktu tunggu gratis dimulai.", "dockedDone": "Sandar dikonfirmasi {time}",
+    "timeline": "Status", "driverCard": "Driver Anda", "waitingDriver": "Driver akan ditugaskan dan dikirim ke WhatsApp Anda.", "meeting": "Titik temu", "nameBoard": "Driver membawa papan nama \"{name}\"",
+    "pay": "Bayar sekarang", "cancel": "Batalkan pesanan", "rate": "Beri rating", "help": "Bantuan", "code": "Kode pesanan", "total": "Total", "passengers": "Penumpang", "luggage": "Bagasi", "ferry": "Kapal",
+    "contactDriver": "WhatsApp", "callDriver": "Telepon", "etaRange": "Estimasi sandar", "pickup": "Penjemputan", "paymentDue": "Selesaikan pembayaran sebelum {time}", "trips": "{n} trip",
+    "h": { "created": "Pesanan dibuat", "paid": "Pembayaran dikonfirmasi", "assigned": "Driver ditugaskan", "en_route": "Driver menuju pelabuhan", "arrived": "Driver tiba di titik temu", "on_trip": "Dalam perjalanan", "completed": "Selesai" }
+  },
+  "payment": {
+    "title": "Pembayaran", "instructions": "Transfer tepat sejumlah berikut dan tulis kode pesanan di berita transfer.", "bank": "Bank", "account": "Nomor rekening", "holder": "Atas nama", "amount": "Jumlah", "note": "Berita transfer", "copy": "Salin",
+    "upload": "Unggah bukti transfer", "uploadHint": "JPG, PNG, atau PDF maksimal 5 MB", "submit": "Kirim bukti", "sent": "Bukti terkirim. Finance akan mengonfirmasi dan Anda diberi tahu lewat WhatsApp.", "reviewing": "Bukti sedang ditinjau", "paid": "Pembayaran dikonfirmasi", "qris": "QRIS statis tersedia di loket Ops; hubungi kami bila memerlukan."
+  },
+  "cancel": { "title": "Batalkan pesanan", "fee": "Biaya pembatalan", "refund": "Refund", "reason": "Alasan pembatalan", "reasonPh": "Contoh: rencana berubah", "confirm": "Ya, batalkan", "keep": "Tidak jadi", "done": "Pesanan dibatalkan.", "notCancellable": "Pesanan tidak dapat dibatalkan pada status ini.", "hours": "{h} jam sebelum penjemputan" },
+  "rating": { "title": "Bagaimana perjalanan Anda?", "comment": "Ulasan (opsional)", "submit": "Kirim rating", "done": "Terima kasih atas rating Anda!", "window": "Rating dapat diberikan sampai 7 hari setelah selesai." },
+  "login": { "title": "Masuk", "subtitle": "Masuk dengan nomor WhatsApp untuk melihat riwayat pesanan.", "driverCta": "Mitra driver? Masuk di sini" },
+  "account": { "title": "Akun saya", "orders": "Riwayat pesanan", "noOrders": "Belum ada pesanan.", "book": "Pesan sekarang", "language": "Bahasa", "save": "Simpan", "saved": "Tersimpan" },
+  "prices": { "title": "Daftar harga transfer sekali jalan dari Pelabuhan Lembar", "subtitle": "Harga tetap per zona dan kelas kendaraan, termasuk BBM, driver, dan pas pelabuhan. Surcharge malam (22.00–06.00) dan hari raya ditampilkan saat memesan.", "zone": "Zona", "book": "Pesan" },
+  "qr": { "title": "Pesan sekarang di Pelabuhan Lembar", "subtitle": "Penjemputan segera dari titik temu. Driver yang sedang online di pelabuhan akan menerima pesanan Anda.", "cta": "Mulai" },
+  "common": { "loading": "Memuat…", "error": "Terjadi kesalahan", "retry": "Coba lagi", "save": "Simpan", "close": "Tutup", "back": "Kembali", "notFound": "Halaman tidak ditemukan" }
+}
