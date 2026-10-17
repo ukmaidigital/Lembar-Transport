@@ -4,7 +4,7 @@
  *
  *   node tools/prd/render.cjs shots <html-dir> <png-dir>   screenshot every *.html in a folder
  *   node tools/prd/render.cjs shot  <in.html>  <out.png>   screenshot one file
- *   node tools/prd/render.cjs pdf   <in.html>  <out.pdf>   print the rendered PRD to A4 PDF
+ *   node tools/prd/render.cjs pdf   <in.html>  <out.pdf>   print the rendered PRD to A4 PDF (PDF_FOOTER overrides the footer text)
  *
  * A diagram HTML can pick its own viewport width and device scale factor with
  * <body data-width="1600" data-scale="2"> (defaults: 1600 px, 2x). The page is
@@ -84,7 +84,7 @@ async function pdf(browser, input, output) {
     footerTemplate:
       '<div style="width:100%;font-family:Inter,Arial,sans-serif;font-size:8px;color:#6b7280;' +
       'padding:0 16mm;display:flex;justify-content:space-between;">' +
-      '<span>Lembar Transport · Product Requirements Document</span>' +
+      '<span>' + (process.env.PDF_FOOTER || 'Lembar Transport · Product Requirements Document') + '</span>' +
       '<span>Halaman <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>',
   });
   await context.close();

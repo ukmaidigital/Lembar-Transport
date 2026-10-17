@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Lembar Transport — Sistem dan Antarmuka</title>
+<style>
+  /* A4 with the renderer's margins (18/16/20/16 mm) leaves 178 × 259 mm per page. Every .page is exactly one sheet. */
+  :root { --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --brand:#2a78d6; --driver:#eb6834; --admin:#1baf7a; --soft:#f8fafc; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body { font-family: Inter, "Segoe UI", Arial, sans-serif; color:var(--ink); font-size:9.6pt; line-height:1.42; }
+  .page { width:178mm; height:258mm; page-break-after:always; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+  .page:last-child { page-break-after:auto; }
+  h1 { font-size:24pt; line-height:1.1; margin:0 0 4mm; letter-spacing:-0.01em; }
+  h2 { font-size:15pt; margin:0 0 1.5mm; letter-spacing:-0.01em; }
+  h3 { font-size:10.5pt; margin:0 0 1mm; }
+  p { margin:0 0 2mm; }
+  .kicker { font-size:8pt; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--brand); margin-bottom:1.5mm; }
+  .lead { font-size:10.2pt; color:#334155; }
+  .muted { color:var(--muted); }
+  .small { font-size:8.4pt; }
+  .grid { display:grid; gap:4mm; }
+  .cols-2 { grid-template-columns:1fr 1fr; } .cols-3 { grid-template-columns:repeat(3,1fr); } .cols-4 { grid-template-columns:repeat(4,1fr); }
+  .card { border:1px solid var(--line); border-radius:3mm; padding:3.2mm 3.6mm; background:#fff; }
+  .card.soft { background:var(--soft); }
+  .tag { display:inline-block; border-radius:999px; padding:.4mm 2.4mm; font-size:7.6pt; font-weight:600; }
+  .tag.c { background:#e3effb; color:#1c5cab; } .tag.d { background:#fdeae2; color:#c2410c; } .tag.a { background:#dff5ec; color:#0f7a55; } .tag.n { background:#f1f5f9; color:#334155; }
+  table { width:100%; border-collapse:collapse; font-size:8.6pt; }
+  th, td { text-align:left; padding:1.5mm 2mm; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:7.6pt; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; background:var(--soft); }
+  table.compact td, table.compact th { padding:1mm 1.6mm; font-size:7.9pt; }
+  code { font-family:"DejaVu Sans Mono", Menlo, Consolas, monospace; font-size:.88em; background:#f1f5f9; padding:0 1.2mm; border-radius:1mm; }
+  figure { margin:0; }
+  figcaption { font-size:7.8pt; color:var(--muted); margin-top:1.2mm; line-height:1.35; }
+  .shot { border:1px solid var(--line); border-radius:2.5mm; overflow:hidden; background:#fff; }
+  .shot img { display:block; width:100%; height:auto; }
+  .shot.fit { height:var(--h); } .shot.fit img { height:100%; width:100%; object-fit:cover; object-position:top; }
+  .phone { border:2.2mm solid #0f172a; border-radius:7mm; overflow:hidden; background:#000; }
+  .phone img { display:block; width:100%; height:auto; }
+  .footer-note span:last-child { white-space:nowrap; margin-left:4mm; }
+  .footer-note { margin-top:auto; padding-top:3mm; border-top:1px solid var(--line); font-size:7.8pt; color:var(--muted); display:flex; justify-content:space-between; }
+  .cover-band { background:linear-gradient(135deg,#1c5cab,#2a78d6 55%,#eb6834); color:#fff; border-radius:4mm; padding:9mm 9mm 8mm; margin-bottom:5mm; }
+  .cover-band h1 { color:#fff; font-size:27pt; }
+  .cover-band .lead { color:#e2e8f0; }
+  .stat { text-align:center; } .stat b { display:block; font-size:16pt; line-height:1.1; } .stat span { font-size:7.8pt; color:var(--muted); }
+  ul { margin:0 0 2mm; padding-left:4.2mm; } li { margin-bottom:.8mm; }
+  .flow { display:flex; align-items:stretch; gap:2mm; }
+  .flow .step { flex:1; border:1px solid var(--line); border-radius:2.5mm; padding:2.2mm 2.6mm; background:#fff; font-size:8.4pt; }
+  .flow .step b { display:block; font-size:9pt; margin-bottom:.6mm; }
+  .arrow { align-self:center; color:#94a3b8; font-size:12pt; }
+  .num { display:inline-flex; width:5mm; height:5mm; border-radius:50%; background:var(--ink); color:#fff; font-size:7.6pt; font-weight:700; align-items:center; justify-content:center; margin-right:1.6mm; vertical-align:middle; }
+</style>
+</head>
+<body>
+
+<!-- ───────────── 1. SAMPUL + RINGKASAN ───────────── -->
+<section class="page">
+  <div class="cover-band">
+    <div class="kicker" style="color:#cde2fb">Ringkasan Sistem · Fase 1 MVP · Oktober 2026</div>
+    <h1>Lembar Transport<br>Arsitektur Sistem &amp; Antarmuka Pengguna</h1>
+    <p class="lead">Platform pemesanan mobil + driver dari Pelabuhan Lembar, Lombok Barat: harga tetap per zona, driver terverifikasi, titik temu yang jelas. Dokumen ini merangkum cara sistem bekerja dan seperti apa tampilannya untuk tiga peran: <b>Customer</b>, <b>Driver mitra</b>, dan <b>Admin/Ops</b>.</p>
+  </div>
+
+  <div class="grid cols-4" style="margin-bottom:4mm">
+    <div class="card stat"><b>3</b><span>antarmuka (customer, driver PWA, admin)</span></div>
+    <div class="card stat"><b>129</b><span>endpoint REST <code>/api/v1</code></span></div>
+    <div class="card stat"><b>42</b><span>tabel MySQL (24 domain + sistem)</span></div>
+    <div class="card stat"><b>32 + 3</b><span>feature test Pest + alur e2e Playwright</span></div>
+  </div>
+
+  <div class="grid cols-3" style="margin-bottom:4mm">
+    <div class="card"><span class="tag c">Customer</span><h3 style="margin-top:1.5mm">Pesan dalam 5 langkah</h3><p class="small">Pilih tujuan → kelas kendaraan (harga terkunci 30 menit) → data kapal feri → kontak via OTP WhatsApp → bayar tunai/transfer. Tiket menampilkan status langsung, driver, titik temu, dan tombol <i>Kapal sudah sandar</i>. Dua bahasa (ID/EN).</p></div>
+    <div class="card"><span class="tag d">Driver</span><h3 style="margin-top:1.5mm">PWA di ponsel</h3><p class="small">Pendaftaran + unggah dokumen, tawaran trip dengan hitung mundur (first-accept-wins), status trip sekali ketuk, papan nama, catat tunai, saldo/komisi, top-up, dan antrean aksi offline bila sinyal hilang.</p></div>
+    <div class="card"><span class="tag a">Admin</span><h3 style="margin-top:1.5mm">Konsol operasional</h3><p class="small">Verifikasi dokumen berdampingan, papan pesanan, assign manual berdasarkan skor kelayakan, konfirmasi pembayaran, ledger/payout, tarif &amp; surcharge, laporan CSV, pengaturan bisnis, audit log.</p></div>
+  </div>
+
+  <figure>
+    <div class="shot"><img src="../../../docs/img/architecture.png" alt="Diagram arsitektur"></div>
+    <figcaption><b>Gambar 1 — Arsitektur tingkat tinggi.</b> Next.js melayani tiga area UI dan bertindak sebagai BFF (token di cookie httpOnly, semua panggilan browser lewat <code>/api/proxy/*</code>). Laravel menyediakan REST API, domain services, scheduler, dan queue; MySQL 8 menyimpan data, Redis untuk cache/sesi/antrean, berkas privat dengan URL bertanda tangan.</figcaption>
+  </figure>
+
+  <div class="footer-note"><span>Stack: Laravel 12 · PHP 8.3 · MySQL 8.4 · Redis 7 · Next.js 15 · Tailwind v4 · Docker</span><span>Halaman 1 / 7</span></div>
+</section>
+
+<!-- ───────────── 2. ARSITEKTUR TEKNIS ───────────── -->
+<section class="page">
+  <div class="kicker">Arsitektur</div>
+  <h2>Lapisan sistem dan tanggung jawabnya</h2>
+  <p class="lead">Satu API, tiga antarmuka. Aturan bisnis tinggal di sisi server (<code>app/Services</code>) sehingga UI mana pun yang memanggilnya mendapat perilaku yang sama; frontend hanya menampilkan dan menjaga rute.</p>
+
+  <div class="flow" style="margin:3mm 0 4mm">
+    <div class="step" style="border-color:#2a78d6"><b>Browser / PWA</b>Next.js 15 App Router · Tailwind · next-intl (ID/EN) · service worker Serwist + IndexedDB untuk driver</div><div class="arrow">→</div>
+    <div class="step"><b>BFF Next.js</b><code>/api/auth/session</code> menyimpan token Sanctum di cookie httpOnly; <code>/api/proxy/*</code> meneruskan permintaan dengan header Bearer; <code>middleware.ts</code> menjaga <code>/driver</code>, <code>/admin</code>, <code>/akun</code></div><div class="arrow">→</div>
+    <div class="step" style="border-color:#1baf7a"><b>Laravel API</b>Sanctum (ability per peran), spatie/permission, Form Request, Resource role-aware, idempotency-key, rate limit per grup</div><div class="arrow">→</div>
+    <div class="step"><b>Data &amp; infra</b>MySQL 8 (migrasi MySQL-compatible), Redis (cache, sesi, queue), disk privat + signed URL 5 menit, scheduler tiap menit</div>
+  </div>
+
+  <div class="card soft" style="margin-bottom:3.5mm">
+    <h3>Domain services (Laravel) — satu kelas per aturan bisnis</h3>
+    <table class="compact">
+      <tr><th style="width:27%">Service</th><th>Tanggung jawab</th></tr>
+      <tr><td><code>QuoteService</code></td><td>Tarif aktif per zona/kelas pada waktu jemput, surcharge malam (22.00–06.00) &amp; hari raya, pembulatan Rp 1.000, token harga 30 menit</td></tr>
+      <tr><td><code>OrderStateMachine</code></td><td>Transisi status yang sah (Lampiran C PRD), riwayat append-only, stempel waktu per tahap</td></tr>
+      <tr><td><code>DispatchEngine</code></td><td>Kelayakan driver, skor 40/20/20/20, gelombang 5 → 10 → semua, <i>first-accept-wins</i> dengan <code>lockForUpdate</code>, retry 30 menit, <code>needs_attention</code></td></tr>
+      <tr><td><code>PaymentService</code></td><td>Metode yang diizinkan, instruksi transfer, bukti, konfirmasi/penolakan Finance, kedaluwarsa otomatis</td></tr>
+      <tr><td><code>TripService</code></td><td>Status trip, jangkar sandar, tunggu gratis 60 menit, no-show, <code>client_timestamp</code> dari antrean offline</td></tr>
+      <tr><td><code>LedgerService</code></td><td>Komisi 15 %, kompensasi pembatalan, top-up, payout mingguan, ambang saldo</td></tr>
+      <tr><td><code>DriverOnboardingService</code></td><td>Pendaftaran, dokumen berversi &amp; kedaluwarsa, review per dokumen, keputusan aktif/revisi/tolak, tangguhkan</td></tr>
+      <tr><td><code>NotificationService</code> · <code>ReportService</code></td><td>Template ID/EN → log + notifikasi in-app (siap diganti vendor WhatsApp); laporan operasional/keuangan JSON &amp; CSV</td></tr>
+    </table>
+  </div>
+
+  <div class="grid cols-3" style="margin-bottom:3.5mm">
+    <div class="card">
+      <h3>Autentikasi &amp; otorisasi</h3>
+      <ul class="small">
+        <li><b>Customer &amp; driver:</b> OTP 6 digit via WhatsApp (5 menit, 3 percobaan, 5/jam); token 30 hari, ability per peran.</li>
+        <li><b>Admin:</b> email + kata sandi + TOTP; sesi 8 jam; peran <code>super_admin</code>, <code>ops</code>, <code>verifier</code>, <code>finance</code> dengan izin granular.</li>
+        <li>Tiket tamu dibuka dengan 4 digit terakhir nomor WA; nomor penumpang dibuka ke driver 24 jam sebelum jemput.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Pekerjaan terjadwal</h3>
+      <table class="compact">
+        <tr><td>Dispatch tick (gelombang, timeout, retry)</td><td>tiap menit</td></tr>
+        <tr><td>Kedaluwarsa bukti transfer</td><td>5 menit</td></tr>
+        <tr><td>Pengingat pra-kedatangan / H-1</td><td>10 menit / 20.00 WITA</td></tr>
+        <tr><td>Auto-complete trip</td><td>30 menit</td></tr>
+        <tr><td>Cek dokumen, purge data</td><td>harian</td></tr>
+        <tr><td>Payout mingguan</td><td>Senin 07.00</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Model data inti (42 tabel)</h3>
+      <p class="small"><b>Mitra:</b> users, drivers, vehicles, dokumen berversi, rekening, hari libur.<br><b>Pesanan:</b> <code>orders</code> sebagai pusat, riwayat status, tawaran dispatch, rating, laporan masalah; katalog zona, lokasi, rute feri, kelas, tarif berlaku-mulai, surcharge, hari raya.<br><b>Keuangan &amp; platform:</b> pembayaran, refund, ledger (saldo berjalan), top-up, payout, OTP, log notifikasi, pengaturan, audit. ERD lengkap: Gambar 10 PRD.</p>
+    </div>
+  </div>
+  <div class="footer-note"><span>Konfigurasi bisnis di <code>config/lembar.php</code>, dapat ditimpa dari menu Pengaturan (tabel <code>settings</code>)</span><span>Halaman 2 / 7</span></div>
+</section>
+
+<!-- ───────────── 3. ALUR BISNIS ───────────── -->
+<section class="page">
+  <div class="kicker">Alur bisnis</div>
+  <h2>Siklus hidup pesanan dan dispatch otomatis</h2>
+  <p class="lead">Setiap pesanan bergerak melalui mesin status yang ketat; dispatch berjalan di latar belakang dan Ops hanya turun tangan bila sistem menandai <i>perlu perhatian</i>.</p>
+
+  <figure style="margin:2mm 0 4mm">
+    <div class="shot fit" style="--h:70mm"><img src="../../../docs/img/order-state-machine.png" alt="State machine pesanan"></div>
+    <figcaption><b>Gambar 3 — State machine pesanan.</b> <code>pending_payment → confirmed → dispatching ⇄ assigned → en_route → arrived → on_trip → completed</code>; terminal <code>expired</code>, <code>cancelled</code>, <code>no_show</code>. Status pembayaran dicatat terpisah (<code>unpaid</code>, <code>pending_review</code>, <code>paid</code>, <code>refunded</code>).</figcaption>
+  </figure>
+
+  <div class="grid cols-3">
+    <div class="card">
+      <h3><span class="num">1</span>Dispatch</h3>
+      <ul class="small">
+        <li>Mulai T-48 jam (atau seketika untuk pesanan QR di pelabuhan).</li>
+        <li>Kandidat: aktif &amp; online, kelas cocok, dokumen valid, saldo ≥ ambang, tidak libur/bentrok jadwal.</li>
+        <li>Skor = 40 % rating + 20 % penerimaan + 20 % tepat waktu + 20 % keadilan.</li>
+        <li>Gelombang 5 / 10 / semua driver (120–180 dtk). Yang pertama menerima menang; tawaran lain <i>superseded</i>.</li>
+        <li>Gagal semua → <code>needs_attention</code>, retry tiap 30 menit sampai T-6 jam; Ops boleh assign manual.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="num">2</span>Pembayaran</h3>
+      <ul class="small">
+        <li><b>Tunai:</b> pesanan langsung <code>confirmed</code>; driver mencatat jumlah diterima saat selesai; komisi 15 % dipotong dari saldo driver.</li>
+        <li><b>Transfer/QRIS:</b> ≥ 8 jam sebelum jemput; bukti diunggah ≤ 2 jam, Finance mengonfirmasi → dispatch dimulai.</li>
+        <li>Gateway kartu/e-wallet disiapkan di balik flag (Fase 2).</li>
+        <li>Biaya tunggu: gratis 60 menit sejak kapal sandar, lalu per 30 menit dengan persetujuan Ops.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="num">3</span>Pembatalan &amp; no-show</h3>
+      <ul class="small">
+        <li>≥ 24 jam: gratis · 6–24 jam: 50 % · &lt; 6 jam atau driver sudah berangkat: 100 %.</li>
+        <li>Prabayar: refund otomatis; driver yang sudah ditugaskan dapat kompensasi 50 %/100 %.</li>
+        <li>No-show: setelah tunggu gratis + tenggang 30 menit dan ≥ 3 upaya kontak; dikonfirmasi Ops.</li>
+        <li>Ops dapat membebaskan biaya (force majeure); semua tercatat di audit log.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card soft" style="margin-top:4mm">
+    <h3>Alur ujung ke ujung yang diuji otomatis</h3>
+    <div class="flow">
+      <div class="step"><b>Customer</b>quote → pesan dengan OTP → tiket → gate 4 digit → preview pembatalan</div><div class="arrow">→</div>
+      <div class="step"><b>Scheduler</b>dispatch tick membuat tawaran untuk driver layak</div><div class="arrow">→</div>
+      <div class="step"><b>Driver</b>menerima tawaran → trip → papan nama; pemohon baru lengkapi dokumen → kirim</div><div class="arrow">→</div>
+      <div class="step"><b>Admin</b>verifikasi &amp; aktivasi, assign manual, pembayaran, laporan</div>
+    </div>
+  </div>
+  <div class="footer-note"><span>Zona waktu operasional WITA (Asia/Makassar); jadwal feri Padang Bai dicatat dalam WIB dan dikonversi otomatis</span><span>Halaman 3 / 7</span></div>
+</section>
+
+<!-- ───────────── 4. UI CUSTOMER ───────────── -->
+<section class="page">
+  <div class="kicker" style="color:var(--brand)">Antarmuka · Customer</div>
+  <h2>Pemesanan tanpa akun, harga pasti, tiket langsung</h2>
+  <p class="lead">Dirancang untuk wisatawan di atas kapal: ringan, dua bahasa, dan satu tujuan per layar. Semua tangkapan layar di dokumen ini diambil dari aplikasi yang berjalan dengan data demo.</p>
+
+  <figure style="margin-bottom:3.5mm">
+    <div class="shot fit" style="--h:68mm"><img src="../../../docs/brief/img/customer-landing.png" alt="Landing customer"></div>
+    <figcaption><b>Gambar 4 — Landing.</b> Kartu pencarian (tujuan, tanggal &amp; jam tiba WITA, penumpang, bagasi), harga populer per zona dari tarif aktif, tiga nilai jual, dan tautan pesan instan via QR di pelabuhan. Sakelar ID/EN di kanan atas.</figcaption>
+  </figure>
+
+  <div class="grid cols-2">
+    <figure>
+      <div class="shot"><img src="../../../docs/brief/img/customer-wizard.png" alt="Wizard pemilihan kendaraan"></div>
+      <figcaption><b>Gambar 5 — Wizard, langkah Kendaraan.</b> Setiap kelas menampilkan kapasitas, surcharge yang berlaku, dan total; kelas yang tidak muat dinonaktifkan dengan alasan. Harga dikunci 30 menit (hitung mundur) agar tidak berubah saat pengguna mengisi data kapal dan kontak.</figcaption>
+    </figure>
+    <figure>
+      <div class="shot fit" style="--h:53.5mm"><img src="../../../docs/brief/img/customer-ticket.png" alt="Tiket customer"></div>
+      <figcaption><b>Gambar 6 — Tiket.</b> Kode pesanan, status real-time (polling), kartu driver dengan WhatsApp/telepon, titik temu dan papan nama, tombol <i>Kapal sudah sandar</i> (aktif 2 jam sebelum estimasi), tautan bayar/batal/rating. Tamu membuka tiket dengan 4 digit terakhir nomor WA.</figcaption>
+    </figure>
+  </div>
+
+  <div class="card soft" style="margin-top:3.5mm">
+    <div class="grid cols-3 small">
+      <div><b>Halaman lain</b><br>Daftar harga, FAQ, kebijakan pembatalan, syarat, privasi, pembayaran (instruksi transfer + unggah bukti), pembatalan dengan preview biaya, rating, akun &amp; riwayat.</div>
+      <div><b>Teknis</b><br>Server component untuk SEO (harga, FAQ), client component untuk wizard/tiket; <code>useApi</code> polling; pesan di <code>messages/id.json</code> &amp; <code>en.json</code>.</div>
+      <div><b>Aksesibilitas &amp; mobile</b><br>Target sentuh ≥ 44 px, kontras AA, tata letak satu kolom di ponsel, tanggal/jam selalu ditampilkan dalam WITA.</div>
+    </div>
+  </div>
+  <div class="footer-note"><span>Rute: <code>/</code>, <code>/harga</code>, <code>/pesan</code>, <code>/qr</code>, <code>/pesanan/[kode]</code>, <code>/akun</code> (prefiks <code>/en</code> untuk bahasa Inggris)</span><span>Halaman 4 / 7</span></div>
+</section>
+
+<!-- ───────────── 5. UI DRIVER ───────────── -->
+<section class="page">
+  <div class="kicker" style="color:var(--driver)">Antarmuka · Driver mitra (PWA)</div>
+  <h2>Aplikasi ponsel yang tetap bekerja saat sinyal hilang</h2>
+  <p class="lead">Dipasang dari browser (manifest + service worker), navigasi bawah lima menu, warna aksen oranye agar berbeda dari aplikasi customer. Semua aksi penting cukup satu ketukan besar.</p>
+
+  <div class="grid cols-4" style="margin:2mm 0 3.5mm; align-items:start">
+    <figure><div class="phone"><img src="../../../docs/brief/img/driver-home.png" alt="Beranda driver"></div><figcaption><b>Gambar 7 — Beranda.</b> Sakelar online, saldo &amp; ambang, tawaran dengan hitung mundur dan pendapatan bersih, trip hari ini / berikutnya.</figcaption></figure>
+    <figure><div class="phone"><img src="../../../docs/brief/img/driver-trip.png" alt="Detail trip"></div><figcaption><b>Gambar 8 — Detail trip.</b> Kontak penumpang, data kapal, komisi, satu tombol status per tahap, SOS dan undur diri.</figcaption></figure>
+    <figure><div class="phone"><img src="../../../docs/brief/img/driver-nameboard.png" alt="Papan nama"></div><figcaption><b>Gambar 9 — Papan nama.</b> Layar penuh nama penumpang untuk diperlihatkan di pintu keluar terminal.</figcaption></figure>
+    <figure><div class="phone"><img src="../../../docs/brief/img/driver-earnings.png" alt="Pendapatan"></div><figcaption><b>Gambar 10 — Pendapatan.</b> Saldo, ambang, trip &amp; bersih per periode, mutasi ledger, tombol top-up dengan bukti.</figcaption></figure>
+  </div>
+
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>Perjalanan driver</h3>
+      <ul class="small">
+        <li><b>Daftar:</b> OTP → data diri → kendaraan → rekening → 7 dokumen wajib (KTP, SIM A, STNK, SKCK, selfie, foto kendaraan, buku rekening) dengan tanggal kedaluwarsa → kirim. Status verifikasi menampilkan SLA 24 jam dan dokumen yang ditolak beserta alasannya.</li>
+        <li><b>Tawaran:</b> muncul hanya saat online dan layak; 120 detik untuk menerima; yang kalah otomatis hilang.</li>
+        <li><b>Trip:</b> Berangkat (aktif 3 jam sebelum jemput) → Tiba di titik temu → Penumpang naik → Selesai (tunai: isi jumlah, catatan bila beda).</li>
+        <li><b>Tunggu &amp; no-show:</b> timer dari jangkar sandar; no-show bisa diajukan setelah tenggang dan ≥ 3 upaya kontak, dikonfirmasi Ops.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Teknik di balik layar</h3>
+      <ul class="small">
+        <li><b>Offline-first:</b> ketukan status disimpan di IndexedDB dengan <code>client_timestamp</code> dan dikirim ulang berurutan saat online; server menandai sinkronisasi terlambat &gt; 10 menit.</li>
+        <li><b>Service worker (Serwist):</b> precache shell aplikasi, navigasi network-first; API tidak di-cache untuk penulisan.</li>
+        <li><b>Polling:</b> tawaran tiap 10 detik, profil 30 detik; berhenti saat tab tidak terlihat.</li>
+        <li><b>Jadwal:</b> kalender hari libur (tidak menerima tawaran) dan penanda hari bertrip; riwayat trip.</li>
+        <li><b>Keamanan:</b> nomor penumpang disamarkan sampai 24 jam sebelum jemput; dokumen hanya lewat URL bertanda tangan 5 menit.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-note"><span>Rute: <code>/driver</code>, <code>/driver/daftar</code>, <code>/driver/tawaran</code>, <code>/driver/trip/[kode]</code> (+<code>/papan-nama</code>), <code>/driver/jadwal</code>, <code>/driver/pendapatan</code>, <code>/driver/profil</code></span><span>Halaman 5 / 7</span></div>
+</section>
+
+<!-- ───────────── 6. UI ADMIN ───────────── -->
+<section class="page">
+  <div class="kicker" style="color:var(--admin)">Antarmuka · Admin / Ops</div>
+  <h2>Konsol operasional dengan navigasi sesuai izin</h2>
+  <p class="lead">Sidebar menampilkan hanya menu yang diizinkan peran pengguna, lengkap dengan lencana jumlah pekerjaan (perlu perhatian, verifikasi menunggu, bukti bayar). Login wajib kata sandi, dengan TOTP opsional atau diwajibkan lewat pengaturan.</p>
+
+  <div class="grid cols-2" style="margin:2mm 0 3mm">
+    <figure><div class="shot fit" style="--h:52mm"><img src="../../../docs/brief/img/admin-dashboard.png" alt="Dashboard admin"></div><figcaption><b>Gambar 11 — Dashboard.</b> KPI hari ini (pesanan, trip berjalan, perlu perhatian, verifikasi &amp; SLA, bukti bayar, driver online), penjemputan hari ini, tren 14 hari.</figcaption></figure>
+    <figure><div class="shot fit" style="--h:52mm"><img src="../../../docs/brief/img/admin-verification.png" alt="Review verifikasi"></div><figcaption><b>Gambar 12 — Verifikasi berdampingan.</b> Data pemohon dan daftar periksa di kiri, pratinjau dokumen dengan setujui/tolak (kode alasan) di kanan; aktivasi hanya aktif bila semua syarat terpenuhi.</figcaption></figure>
+    <figure><div class="shot fit" style="--h:52mm"><img src="../../../docs/brief/img/admin-order.png" alt="Detail pesanan"></div><figcaption><b>Gambar 13 — Detail pesanan.</b> Perjalanan, customer &amp; driver, rincian harga &amp; komisi, riwayat status, tawaran dispatch, pembayaran; aksi Ops: ganti/lepas driver, ulangi dispatch, tandai sandar, biaya tunggu, no-show, batalkan.</figcaption></figure>
+    <figure><div class="shot fit" style="--h:52mm"><img src="../../../docs/brief/img/admin-assign.png" alt="Dialog assign"></div><figcaption><b>Gambar 14 — Assign manual.</b> Kandidat diurutkan skor dengan alasan ketidaklayakan; driver tidak layak hanya bisa dipilih dengan alasan override yang tercatat di audit log.</figcaption></figure>
+  </div>
+
+  <table style="margin-bottom:3mm">
+    <tr><th style="width:26%">Modul</th><th>Fungsi</th><th style="width:22%">Izin</th></tr>
+    <tr><td>Pesanan &amp; Dispatch</td><td>Tabel + papan kanban per status, pesanan manual (telepon/walk-in) dengan override harga beralasan, papan perlu-perhatian, laporan SOS/kendala, driver online</td><td><code>orders.view/manage/assign</code></td></tr>
+    <tr><td>Verifikasi &amp; Driver</td><td>Antrean dengan SLA, review dokumen, aktif/revisi/tolak, tangguhkan/aktifkan, catatan internal, daftarkan atas nama, kendaraan &amp; kelas</td><td><code>drivers.view/verify/manage</code>, <code>fleet.manage</code></td></tr>
+    <tr><td>Keuangan</td><td>Review bukti transfer, refund, ledger &amp; penyesuaian, top-up driver, batch payout mingguan + CSV bank</td><td><code>payments.*</code>, <code>ledger.manage</code>, <code>payouts.manage</code></td></tr>
+    <tr><td>Katalog &amp; Sistem</td><td>Matriks tarif berlaku-mulai, surcharge, hari raya, zona/tujuan/rute feri, titik temu + foto, laporan CSV, pengaturan bisnis, staf &amp; peran, audit log</td><td><code>tariffs.manage</code>, <code>settings.manage</code>, <code>staff.manage</code>, <code>audit.view</code></td></tr>
+  </table>
+  <div class="footer-note"><span>Semua mutasi oleh staf dicatat di audit log (spatie/activitylog) dengan pelaku, objek, dan properti perubahan</span><span>Halaman 6 / 7</span></div>
+</section>
+
+<!-- ───────────── 7. OPERASIONAL & DEPLOYMENT ───────────── -->
+<section class="page">
+  <div class="kicker">Keamanan, kualitas &amp; deployment</div>
+  <h2>Siap dijalankan di laptop, server, atau CI</h2>
+
+  <div class="grid cols-2" style="margin:2mm 0 4mm">
+    <div class="card">
+      <h3>Keamanan &amp; kepatuhan</h3>
+      <ul class="small">
+        <li>Token Sanctum per peran dengan masa berlaku; admin 8 jam + TOTP; kata sandi bcrypt.</li>
+        <li>Rate limit per grup rute (OTP 10/menit, publik 60/menit, admin 300/menit) dengan bucket terpisah.</li>
+        <li>Idempotency-Key pada pembuatan pesanan; <i>first-accept-wins</i> dikunci di basis data.</li>
+        <li>Dokumen identitas di disk privat, akses lewat URL bertanda tangan 5 menit dan dicatat.</li>
+        <li>Retensi: OTP 24 jam, log notifikasi 90 hari, data tamu dianonimkan 2 tahun (UU PDP 27/2022).</li>
+        <li>Respons error seragam <code>{error:{code,message,details}}</code>, tanpa stack trace di produksi.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Pengujian otomatis</h3>
+      <ul class="small">
+        <li><b>Pest (32 feature test):</b> quote &amp; surcharge, alur pesanan, pembayaran manual, pembatalan &amp; kompensasi, dispatch (gelombang, balapan terima, kelayakan), onboarding, otorisasi admin. Lulus di SQLite dan MySQL 8.</li>
+        <li><b>Playwright (3 alur e2e):</b> customer, driver, admin — dijalankan terhadap API ter-seed; menghasilkan tangkapan layar.</li>
+        <li><b>Kualitas kode:</b> Laravel Pint, ESLint, TypeScript strict, <code>next build</code>.</li>
+        <li><b>CI GitHub Actions:</b> Pint + Pest (SQLite), Pest (MySQL 8 service), ESLint + tsc + build, e2e dengan artefak screenshot.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Tiga cara menjalankan</h3>
+  <table style="margin-bottom:4mm">
+    <tr><th style="width:24%">Mode</th><th>Perintah</th><th style="width:34%">Isi</th></tr>
+    <tr><td><b>Lokal cepat</b> (SQLite)</td><td><code>scripts/dev.sh</code></td><td>API :8000, scheduler, queue, Next.js dev :3000, data demo</td></tr>
+    <tr><td><b>Semua di Docker</b> (Windows/macOS/Linux)</td><td><code>docker compose up -d --build</code> atau <code>scripts\setup-windows.ps1</code></td><td>MySQL 8.4 (:3307), Redis, api, queue, scheduler, web dev server; hanya butuh Docker Desktop + Git</td></tr>
+    <tr><td><b>Produksi</b></td><td><code>docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d</code></td><td>nginx → php-fpm &amp; Next.js standalone, queue, scheduler, MySQL, Redis; migrasi otomatis saat boot</td></tr>
+  </table>
+
+  <div class="grid cols-3" style="margin-bottom:4mm">
+    <div class="card soft"><span class="tag c">Customer</span><p class="small" style="margin-top:1.5mm"><b>http://localhost:3000</b> (EN: <code>/en</code>). Masuk dengan nomor WA apa pun; kode OTP ditampilkan di layar pada mode non-produksi.</p></div>
+    <div class="card soft"><span class="tag d">Driver</span><p class="small" style="margin-top:1.5mm"><b>/driver</b> — nomor demo <code>08120000001</code>…<code>06</code> (aktif), <code>…10</code> (menunggu verifikasi). Pendaftaran baru lewat <code>/driver/masuk?daftar=1</code>.</p></div>
+    <div class="card soft"><span class="tag a">Admin</span><p class="small" style="margin-top:1.5mm"><b>/admin/masuk</b> — <code>super@lembartransport.test</code>, <code>ops@…</code>, <code>verifier@…</code>, <code>finance@…</code>; kata sandi <code>password</code>.</p></div>
+  </div>
+
+  <div class="card">
+    <h3>Batasan Fase 1 dan rencana lanjutan</h3>
+    <p class="small">Integrasi WhatsApp/SMS/email dan gateway pembayaran berjalan dalam mode <i>stub</i> yang siap diganti driver vendor; pelacakan GPS, antrean digital di pelabuhan, promo, dan perjalanan pulang-pergi dijadwalkan untuk Fase 2. Struktur kode (service per domain, resource role-aware, flag di pengaturan) dibuat agar penambahan tersebut tidak mengubah UI yang sudah ada.</p>
+  </div>
+  <div class="footer-note"><span>Repositori: github.com/ukmaidigital/Lembar-Transport · branch <code>claude/optimistic-faraday-9hgpbq</code> · PRD lengkap di <code>docs/PRD-Lembar-Transport.pdf</code></span><span>Halaman 7 / 7</span></div>
+</section>
+</body>
+</html>
